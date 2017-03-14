@@ -13,12 +13,13 @@ import java.util.StringTokenizer;
 import treeTransducer.CoNLLHash;
 import treeTransducer.CoNLLTreeConstructor;
 
-public class BaselineEs {
+public class BaselineChn {
 	
-public static void main(String[] args) {
+public static void main(String[] args) throws IOException
+{
 		
 		HashMap<Integer,ArrayList<String>> nodesToRemoveSecondPass=new HashMap<Integer,ArrayList<String>>();
-		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.storeTreebank(args[0]);
+		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.loadTreebank(args[0]);
 		
 		int i=0;
 		try {
@@ -44,6 +45,7 @@ public static void main(String[] args) {
 						String pos="";
 						String lemma="";
 						String head="";
+						String form="";
 						while(st.hasMoreTokens()) {
 							String s=st.nextToken("\t");
 							if (cont==1) {
@@ -54,6 +56,10 @@ public static void main(String[] args) {
 							}
 							if (cont==3){
 								lemma=s;
+							}
+							
+							if (cont==1){
+								form=s;
 							}
 							
 							
@@ -69,115 +75,82 @@ public static void main(String[] args) {
 								
 								
 								
-								//REMOVE NODES
-													
-								
-								if (s.equals("analyt_fut")||
-										s.equals("analyt_pass")||
-										s.equals("analyt_perf")||
-										s.equals("analyt_progr")){
-										ArrayList<String> a=nodesToRemoveSecondPass.get(i);
-										if (a==null){
-											a=new ArrayList<String>();
-										}
-										a.add(head);
-										nodesToRemoveSecondPass.put(i, a);
-								}
-
-								//REMOVE NODES
-								if (s.equals("aux_phras")||
-										s.equals("aux_refl_lex")||
-										s.equals("aux_refl_pass")||
-										s.equals("punc")||
-										(s.equals("det")&&lemma.equals("un"))||
-										(s.equals("det")&&lemma.equals("el"))||
-										(s.equals("iobj") && pos.equals("IN"))||
-										(s.equals("obl_obj") && pos.equals("IN"))||
-										(s.equals("obl_compl") && pos.equals("IN"))||
-										s.equals("punc_init"))
+								/*if ((pos.equals("AS") && s.equals("asp"))||
+										pos.equals("PU")||
+										pos.equals("SP")||
+										pos.equals("DEG")||
+										pos.equals("DER")||
+										pos.equals("DEV")||
+										pos.equals("BA")||
+										(pos.equals("P") && form.equals("就"))||
+										(pos.equals("LB") && s.equals("pass"))||
+										(pos.equals("SB") && s.equals("pass"))||
+										(pos.equals("LC") && s.equals("plmod")))*/
 											//s="null";
-											print=false;
-
-										if (s.equals("juxtapos")||
-												s.equals("prolep"))
+							    if (s.equals("punct")) print=false;
+								
+								if (s.equals("etc")||
+										s.equals("prnmod"))
 											s="APPEND";
-
-
-										if (s.equals("abbrev")||
-										s.equals("abs_pred")||
-										s.equals("adjunct")||
-										s.equals("adv")||
-										s.equals("adv_mod")||
-										s.equals("appos")||
-										s.equals("appos_descr")||
-										s.equals("attr")||
-										s.equals("attr_descr")||
-										s.equals("bin_junct")||
-										s.equals("compl_adnom")||
-										s.equals("det")||
-										s.equals("elect")||
-										s.equals("modif")||
-										s.equals("modif_descr")||
-										s.equals("obj_copred")||
-										s.equals("quant")||
-										s.equals("quant_descr")||
-										s.equals("relat")||
-										s.equals("relat_descr")||
-										s.equals("relat_expl")||
-										s.equals("sequent")||
-										s.equals("subj_copred"))
+								
+								if (s.equals("advmod")||
+										s.equals("amod")||
+										s.equals("assm")||
+										s.equals("assmod")||
+ 										s.equals("clf")||
+ 										s.equals("cop")||
+ 										s.equals("cpm")||
+ 										s.equals("dep")||
+ 										s.equals("det")||
+ 										s.equals("dvpmod")||
+ 										s.equals("loc")||
+ 										s.equals("mmod")||
+ 										s.equals("neg")||
+ 										s.equals("nn")||
+ 										s.equals("nummod")||
+ 										s.equals("ordmod")||
+ 										s.equals("prep")||
+ 										s.equals("prtmod")||
+ 										s.equals("rcmod")||
+ 										s.equals("tmod")||
+ 										s.equals("vmod"))
 											s="ATTR";
-
-										 
-										if (s.equals("coord")||
-										s.equals("num_junct")||
-										s.equals("quasi_coord"))
+								
+								if (s.equals("cc")||
+ 										s.equals("comod")||
+ 										s.equals("rcomp"))
 											s="COORD";
+								
+								if (s.equals("conj"))
+									s="COORD_II";
 
-										if (s.equals("agent")||
-										s.equals("quasi_subj")||
-										s.equals("subj"))
-											s="I";
-
-										if(s.equals("aux_refl_dir")||
-										s.equals("compar")||
-										s.equals("compar_conj")||
-										s.equals("compl1")||
-										s.equals("coord_conj")||
-										s.contains("analyt_")||
-										s.equals("copul")||
-										s.equals("copul_clitic")||
-										s.equals("copul_quot")||
-										s.equals("iobj")||
-										s.equals("iobj_clitic")||
-										s.equals("obl_obj")||
-										s.equals("obl_compl")||
+								if (s.equals("nsubj")||
+								s.equals("top")||
+								s.equals("xsubj"))
+									s="I";
+								
+								
+								if(s.equals("attr")||
+										s.equals("ccomp")||
 										s.equals("dobj")||
-										s.equals("dobj_clitic")||
-										s.equals("dobj_quot")||
-										s.equals("modal")||
-										s.equals("obl_compl0")||
-										s.equals("obl_compl1")||
-										s.equals("obl_compl2")||
-										s.equals("obl_compl3")||
-										s.equals("obl_obj1")||
-										s.equals("obl_obj2")||
-										s.equals("obl_obj3")||
-										s.equals("prepos")||
-										s.equals("prepos_quot")||
-										s.equals("sub_conj"))
+										s.equals("lccomp")||
+										s.equals("lobj")||
+										s.equals("nsubjpass")||
+										s.equals("pccomp")||
+										s.equals("plmod")||
+										s.equals("pobj")||
+										s.equals("range"))
 											s="II";
+								
+								
+								if (s.equals("asp")||
+										s.equals("ba")||
+										s.equals("dvpm")||
+										s.equals("pass")||
+										s.equals("punct")||
+										s.equals("root"))
+											s="ROOT";
 
-
-										if (s.equals("aux_refl_indir")||
-										s.equals("compl2")||
-										s.equals("iobj_clitic1")||
-										s.equals("iobj_clitic2")||
-										s.equals("iobj_clitic3")||
-										s.equals("iobj1")||
-										s.equals("iobj2")||
-										s.equals("iobj3"))
-											s="III";
 							}
 							
 							cont++;
@@ -285,7 +258,7 @@ public static void main(String[] args) {
 				System.out.println(listMappings);
 				
 				br3=new BufferedReader(new FileReader(args[0]+"_baseline"));
-				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_finalBaseline"));
+				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_oldfinalBaseline"));
 				int tok=0;
 				i=0;
 				mappingIds=listMappings.get(i);

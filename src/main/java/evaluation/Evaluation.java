@@ -3,8 +3,8 @@
  */
 package evaluation;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.apache.commons.cli.BasicParser;
@@ -18,7 +18,6 @@ import org.apache.commons.cli.ParseException;
 
 import treeTransducer.CoNLLHash;
 import treeTransducer.CoNLLTreeConstructor;
-import treeTransducer.TransducerSurfToDeep;
 
 /**
  * @author Miguel Ballesteros
@@ -47,11 +46,12 @@ public class Evaluation {
 	private ArrayList<CoNLLHash> goldStandardHash;
 	private ArrayList<CoNLLHash> outputHash;
 	
-	public Evaluation (String goldStandard, String output) {
-		//surfaceHash= CoNLLTreeConstructor.storeTreebank(inputSurface);
+	public Evaluation (String goldStandard, String output) throws IOException
+	{
+		//surfaceHash= CoNLLTreeConstructor.loadTreebank(inputSurface);
 		
-		goldStandardHash= CoNLLTreeConstructor.storeTreebank(goldStandard);
-		outputHash= CoNLLTreeConstructor.storeTreebank(output);
+		goldStandardHash= CoNLLTreeConstructor.loadTreebank(goldStandard);
+		outputHash= CoNLLTreeConstructor.loadTreebank(output);
 		System.out.println("\n-----------Evaluation-------------\n");
 	}
 	
@@ -300,7 +300,7 @@ public class Evaluation {
 	 * 
 	 * SO FAR, IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!)
 	 * 
-	 * @param goldIds
+	 * @param ids
 	 * @param goldSentence
 	 * @return
 	 */
@@ -387,7 +387,8 @@ public class Evaluation {
 		return LA;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException
+	{
 		
 		
 		Option gsOpt = OptionBuilder.withArgName("Gold standard")
@@ -416,7 +417,7 @@ public class Evaluation {
 	        	CommandLine line = parser.parse( options, args );
 	        	//"dsynt_test.conll","dsynt_partial_output_3.conll"
 	        	 
-	     		Evaluation e=new Evaluation(line.getOptionValue("g"),line.getOptionValue("s"));
+	     		Evaluation e = new Evaluation(line.getOptionValue("g"),line.getOptionValue("s"));
 	     		e.HyperNodeAccuracy();
 	     		e.nodeLabelAndAttachment();
 	     		

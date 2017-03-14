@@ -1,19 +1,11 @@
 package svm_utils;
 import libsvm.*;
+
 import java.io.*;
 import java.util.*;
 
 public class svm_train {
-	private svm_parameter param;		// set by parse_command_line
-	private svm_problem prob;		// set by read_problem
-	private svm_model model;
-	private String input_file_name;		// set by parse_command_line
-	private String model_file_name;		// set by parse_command_line
-	private String error_msg;
-	private int cross_validation;
-	private int nr_fold;
-
-	private static svm_print_interface svm_print_null = new svm_print_interface()
+	public static svm_print_interface svm_print_null = new svm_print_interface()
 	{
 		public void print(String s) {}
 	};
@@ -52,7 +44,7 @@ public class svm_train {
 		System.exit(1);
 	}
 
-	private void do_cross_validation()
+	private static void do_cross_validation(svm_problem prob, svm_parameter param)
 	{
 		int i;
 		int total_correct = 0;
@@ -60,7 +52,7 @@ public class svm_train {
 		double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
 		double[] target = new double[prob.l];
 
-		svm.svm_cross_validation(prob,param,nr_fold,target);
+		svm.svm_cross_validation(prob, param, param.nr_fold, target);
 		if(param.svm_type == svm_parameter.EPSILON_SVR ||
 		   param.svm_type == svm_parameter.NU_SVR)
 		{
@@ -89,12 +81,13 @@ public class svm_train {
 			System.out.print("Cross Validation Accuracy = "+100.0*total_correct/prob.l+"%\n");
 		}
 	}
-	
-	private void run(String argv[]) throws IOException
+
+	private static void run(String argv[]) throws IOException
 	{
-		parse_command_line(argv);
-		read_problem();
-		error_msg = svm.svm_check_parameter(prob,param);
+		svm_parameter param = parse_command_line(argv);
+		BufferedReader fp = new BufferedReader(new FileReader(param.input_file_name));
+		svm_problem prob = read_problem(fp, param);
+		String error_msg = svm.svm_check_parameter(prob,param);
 
 		if(error_msg != null)
 		{
@@ -102,26 +95,25 @@ public class svm_train {
 			System.exit(1);
 		}
 
-		if(cross_validation != 0)
+		if(param.cross_validation)
 		{
-			do_cross_validation();
+			do_cross_validation(prob, param);
 		}
 		else
 		{
-			model = svm.svm_train(prob,param);
-			svm.svm_save_model(model_file_name,model);
+			svm_model svm_model = svm.svm_train(prob, param);
+			svm.svm_save_model(param.model_file_name, svm_model);
 		}
 	}
 
 	public static void main(String argv[]) throws IOException
 	{
-		svm_train t = new svm_train();
-		t.run(argv);
+		run(argv);
 	}
 
 	private static double atof(String s)
 	{
-		double d = Double.valueOf(s).doubleValue();
+		double d = Double.valueOf(s);
 		if (Double.isNaN(d) || Double.isInfinite(d))
 		{
 			System.err.print("NaN or Infinity in input\n");
@@ -135,29 +127,29 @@ public class svm_train {
 		return Integer.parseInt(s);
 	}
 
-	private void parse_command_line(String argv[])
+	private static svm_parameter parse_command_line(String argv[])
 	{
 		int i;
 		svm_print_interface print_func = null;	// default printing to stdout
 
-		param = new svm_parameter();
-		// default values
-		param.svm_type = svm_parameter.C_SVC;
-		param.kernel_type = svm_parameter.RBF;
-		param.degree = 3;
-		param.gamma = 0;	// 1/num_features
-		param.coef0 = 0;
-		param.nu = 0.5;
-		param.cache_size = 100;
-		param.C = 1;
-		param.eps = 1e-3;
-		param.p = 0.1;
-		param.shrinking = 1;
-		param.probability = 0;
-		param.nr_weight = 0;
-		param.weight_label = new int[0];
-		param.weight = new double[0];
-		cross_validation = 0;
+		svm_parameter param = new svm_parameter();
+		// default values (moved to default constructor in svm_parameter()
+//		param.svm_type = svm_parameter.C_SVC;
+//		param.kernel_type = svm_parameter.RBF;
+//		param.degree = 3;
+//		param.gamma = 0;	// 1/num_features
+//		param.coef0 = 0;
+//		param.nu = 0.5;
+//		param.cache_size = 100;
+//		param.C = 1;
+//		param.eps = 1e-3;
+//		param.p = 0.1;
+//		param.shrinking = 1;
+//		param.probability = 0;
+//		param.nr_weight = 0;
+//		param.weight_label = new int[0];
+//		param.weight = new double[0];
+//		param.cross_validation = false;
 
 		// parse options
 		for(i=0;i<argv.length;i++)
@@ -208,9 +200,9 @@ public class svm_train {
 					i--;
 					break;
 				case 'v':
-					cross_validation = 1;
-					nr_fold = atoi(argv[i]);
-					if(nr_fold < 2)
+					param.cross_validation = true;
+					param.nr_fold = atoi(argv[i]);
+					if(param.nr_fold < 2)
 					{
 						System.err.print("n-fold cross validation: n must >= 2\n");
 						exit_with_help();
@@ -246,30 +238,31 @@ public class svm_train {
 		if(i>=argv.length)
 			exit_with_help();
 
-		input_file_name = argv[i];
+		param.input_file_name = argv[i];
 
 		if(i<argv.length-1)
-			model_file_name = argv[i+1];
+			param.model_file_name = argv[i+1];
 		else
 		{
 			int p = argv[i].lastIndexOf('/');
 			++p;	// whew...
-			model_file_name = argv[i].substring(p)+".model";
+			param.model_file_name = argv[i].substring(p)+".model";
 		}
+
+		return param;
 	}
 
 	// read in a problem (in svmlight format)
 
-	private void read_problem() throws IOException
+	public static svm_problem read_problem(BufferedReader inReader, svm_parameter inParam) throws IOException
 	{
-		BufferedReader fp = new BufferedReader(new FileReader(input_file_name));
-		Vector<Double> vy = new Vector<Double>();
-		Vector<svm_node[]> vx = new Vector<svm_node[]>();
+		Vector<Double> vy = new Vector<>();
+		Vector<svm_node[]> vx = new Vector<>();
 		int max_index = 0;
 
 		while(true)
 		{
-			String line = fp.readLine();
+			String line = inReader.readLine();
 			if(line == null) break;
 
 			StringTokenizer st = new StringTokenizer(line," \t\n\r\f:");
@@ -287,7 +280,7 @@ public class svm_train {
 			vx.addElement(x);
 		}
 
-		prob = new svm_problem();
+		svm_problem prob = new svm_problem();
 		prob.l = vy.size();
 		prob.x = new svm_node[prob.l][];
 		for(int i=0;i<prob.l;i++)
@@ -296,10 +289,10 @@ public class svm_train {
 		for(int i=0;i<prob.l;i++)
 			prob.y[i] = vy.elementAt(i);
 
-		if(param.gamma == 0 && max_index > 0)
-			param.gamma = 1.0/max_index;
+		if(inParam.gamma == 0 && max_index > 0)
+			inParam.gamma = 1.0/max_index;
 
-		if(param.kernel_type == svm_parameter.PRECOMPUTED)
+		if(inParam.kernel_type == svm_parameter.PRECOMPUTED)
 			for(int i=0;i<prob.l;i++)
 			{
 				if (prob.x[i][0].index != 0)
@@ -313,7 +306,6 @@ public class svm_train {
 					System.exit(1);
 				}
 			}
-
-		fp.close();
+		return prob;
 	}
 }

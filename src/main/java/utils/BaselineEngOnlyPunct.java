@@ -13,12 +13,13 @@ import java.util.StringTokenizer;
 import treeTransducer.CoNLLHash;
 import treeTransducer.CoNLLTreeConstructor;
 
-public class BaselineChn {
+public class BaselineEngOnlyPunct {
 	
-public static void main(String[] args) {
+public static void main(String[] args) throws IOException
+{
 		
 		HashMap<Integer,ArrayList<String>> nodesToRemoveSecondPass=new HashMap<Integer,ArrayList<String>>();
-		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.storeTreebank(args[0]);
+		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.loadTreebank(args[0]);
 		
 		int i=0;
 		try {
@@ -44,7 +45,6 @@ public static void main(String[] args) {
 						String pos="";
 						String lemma="";
 						String head="";
-						String form="";
 						while(st.hasMoreTokens()) {
 							String s=st.nextToken("\t");
 							if (cont==1) {
@@ -55,10 +55,6 @@ public static void main(String[] args) {
 							}
 							if (cont==3){
 								lemma=s;
-							}
-							
-							if (cont==1){
-								form=s;
 							}
 							
 							
@@ -74,82 +70,111 @@ public static void main(String[] args) {
 								
 								
 								
-								/*if ((pos.equals("AS") && s.equals("asp"))||
-										pos.equals("PU")||
-										pos.equals("SP")||
-										pos.equals("DEG")||
-										pos.equals("DER")||
-										pos.equals("DEV")||
-										pos.equals("BA")||
-										(pos.equals("P") && form.equals("就"))||
-										(pos.equals("LB") && s.equals("pass"))||
-										(pos.equals("SB") && s.equals("pass"))||
-										(pos.equals("LC") && s.equals("plmod")))*/
+								//REMOVE NODES
+								if (s.equals("P"))/*||
+										pos.equals("TO")||
+										pos.equals("HYPH")||
+										(pos.equals("IN") && lemma.equals("that"))||
+										(pos.equals("DT") && (lemma.equals("the")||lemma.equals("a"))))/*||
+										(dep.s.equals("VC") & !dep.pos.equals("MD") & !dep.lemma.equals("do")))*/
 											//s="null";
-							    if (s.equals("punct")) print=false;
+											print=false;
 								
-								if (s.equals("etc")||
-										s.equals("prnmod"))
+								
+								if (s.equals("VC")){//  && !pos.equals("MD") && !lemma.equals("do")){
+										//System.out.println("hola");
+										ArrayList<String> a=nodesToRemoveSecondPass.get(i);
+										if (a==null){
+											a=new ArrayList<String>();
+										}
+										a.add(head);
+										//nodesToRemoveSecondPass.put(i, a);
+								}
+
+
+										if (s.equals("DEP")||
+										s.equals("P")||
+										s.equals("POSTHON")||
+										s.equals("TITLE")||
+										s.equals("VOC"))
 											s="APPEND";
-								
-								if (s.equals("advmod")||
-										s.equals("amod")||
-										s.equals("assm")||
-										s.equals("assmod")||
- 										s.equals("clf")||
- 										s.equals("cop")||
- 										s.equals("cpm")||
- 										s.equals("dep")||
- 										s.equals("det")||
- 										s.equals("dvpmod")||
- 										s.equals("loc")||
- 										s.equals("mmod")||
- 										s.equals("neg")||
- 										s.equals("nn")||
- 										s.equals("nummod")||
- 										s.equals("ordmod")||
- 										s.equals("prep")||
- 										s.equals("prtmod")||
- 										s.equals("rcmod")||
- 										s.equals("tmod")||
- 										s.equals("vmod"))
+
+										if (s.equals("ADV")||
+										s.equals("ADV-GAP")||
+										s.equals("AMOD")||
+										s.equals("AMOD-GAP")||
+ 										s.equals("APPO")||
+ 										s.equals("BNF")||
+ 										s.equals("DEP-GAP")||
+ 										s.equals("DIR-GAP")||
+ 										s.equals("DTV-GAP")||
+ 										s.equals("EXT-GAP")||
+ 										s.equals("EXTR-GAP")||
+ 										s.equals("GAP-LGS")||
+ 										s.equals("GAP-LOC")||
+ 										s.equals("GAP-LOC-PRD")||
+ 										s.equals("GAP-MNR")||
+ 										s.equals("GAP-NMOD")||
+ 										s.equals("GAP-OBJ")||
+ 										s.equals("GAP-OPRD")||
+ 										s.equals("GAP-PMOD")||
+ 										s.equals("GAP-PRD")||
+ 										s.equals("GAP-PRP")||
+ 										s.equals("GAP-PUT")||
+ 										s.equals("GAP-SBJ")||
+ 										s.equals("GAP-SUB")||
+ 										s.equals("GAP-TMP")||
+ 										s.equals("GAP-VC")||
+ 										s.equals("HMOD")||
+ 										s.equals("LOC")||
+ 										s.equals("LOC-MNR")||
+ 										s.equals("LOC-TMP")||
+ 										s.equals("MNR")||
+ 										s.equals("MNR-PRD")||
+ 										s.equals("MNR-TMP")||
+ 										s.equals("NMOD")||
+ 										s.equals("PRN")||
+ 										s.equals("PRP")||
+ 										s.equals("SUFFIX")||
+ 										s.equals("TMP"))
 											s="ATTR";
-								
-								if (s.equals("cc")||
- 										s.equals("comod")||
- 										s.equals("rcomp"))
+
+										if (s.equals("COORD"))
 											s="COORD";
-								
-								if (s.equals("conj"))
-									s="COORD_II";
 
-								if (s.equals("nsubj")||
-								s.equals("top")||
-								s.equals("xsubj"))
-									s="I";
-								
-								
-								if(s.equals("attr")||
-										s.equals("ccomp")||
-										s.equals("dobj")||
-										s.equals("lccomp")||
-										s.equals("lobj")||
-										s.equals("nsubjpass")||
-										s.equals("pccomp")||
-										s.equals("plmod")||
-										s.equals("pobj")||
-										s.equals("range"))
+										if (s.equals("EXTR")||
+										s.equals("LGS")||
+										s.equals("SBJ"))
+											s="I";
+
+										if(s.equals("CONJ")||
+										s.equals("DIR")||
+										s.equals("DIR-OPRD")||
+										s.equals("DIR-PRD")||
+										s.equals("LOC-PRD")||
+										s.equals("OBJ")||
+										s.equals("PMOD")||
+										s.equals("PRD")||
+										s.equals("PRD-PRP")||
+										s.equals("PRD-TMP")||
+										s.equals("SUB")||
+										s.equals("VC"))
 											s="II";
-								
-								
-								if (s.equals("asp")||
-										s.equals("ba")||
-										s.equals("dvpm")||
-										s.equals("pass")||
-										s.equals("punct")||
-										s.equals("root"))
-											s="ROOT";
 
+										if (s.equals("DTV")||
+										s.equals("EXT")||
+										s.equals("LOC-OPRD")||
+										s.equals("OPRD"))
+											s="III";
+										
+										if (s.equals("NAME")||
+										s.equals("PRT")||
+										s.equals("PUT"))
+											s="NAME";
+										
+										
+										
+										
 							}
 							
 							cont++;
@@ -201,13 +226,13 @@ public static void main(String[] args) {
 							if (cont==5){
 								pos=s;
 								//System.out.println(nodesToRemoveSecondPass.get(i));
-								//if (!pos.equals("MD") && !lemma.equals("do")) {
+								if (!pos.equals("MD") && !lemma.equals("do")) {
 								
 									if (nodesToRemoveSecondPass.get(i)!=null && nodesToRemoveSecondPass.get(i).contains(id)){
 										//System.out.println("hola");
 										print=false;
 									}
-								//}
+								}
 							}
 
 							cont++;
@@ -257,7 +282,7 @@ public static void main(String[] args) {
 				System.out.println(listMappings);
 				
 				br3=new BufferedReader(new FileReader(args[0]+"_baseline"));
-				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_oldfinalBaseline"));
+				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_finalBaselinePunct"));
 				int tok=0;
 				i=0;
 				mappingIds=listMappings.get(i);
@@ -287,7 +312,7 @@ public static void main(String[] args) {
 							if (cont==1) {
 								newline+=tok+"\t";
 							}
-							else if (cont==9){// || cont==10){
+							else if (cont==9 || cont==10){
 								//find head
 								String newHead=findHead(mappingIds,listOfConlls.get(i),s);
 								newline+=newHead+"\t";

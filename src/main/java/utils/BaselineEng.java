@@ -13,12 +13,13 @@ import java.util.StringTokenizer;
 import treeTransducer.CoNLLHash;
 import treeTransducer.CoNLLTreeConstructor;
 
-public class BaselineEngOnlyPunct {
+public class BaselineEng {
 	
-public static void main(String[] args) {
+public static void main(String[] args) throws IOException
+{
 		
 		HashMap<Integer,ArrayList<String>> nodesToRemoveSecondPass=new HashMap<Integer,ArrayList<String>>();
-		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.storeTreebank(args[0]);
+		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.loadTreebank(args[0]);
 		
 		int i=0;
 		try {
@@ -70,7 +71,7 @@ public static void main(String[] args) {
 								
 								
 								//REMOVE NODES
-								if (s.equals("P"))/*||
+								if (s.equals("P")||
 										pos.equals("TO")||
 										pos.equals("HYPH")||
 										(pos.equals("IN") && lemma.equals("that"))||
@@ -87,7 +88,7 @@ public static void main(String[] args) {
 											a=new ArrayList<String>();
 										}
 										a.add(head);
-										//nodesToRemoveSecondPass.put(i, a);
+										nodesToRemoveSecondPass.put(i, a);
 								}
 
 
@@ -281,7 +282,7 @@ public static void main(String[] args) {
 				System.out.println(listMappings);
 				
 				br3=new BufferedReader(new FileReader(args[0]+"_baseline"));
-				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_finalBaselinePunct"));
+				BufferedWriter bw3=new BufferedWriter(new FileWriter(args[0]+"_finalBaseline"));
 				int tok=0;
 				i=0;
 				mappingIds=listMappings.get(i);

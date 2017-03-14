@@ -26,7 +26,14 @@ public class svm_predict {
 
 	private static double atof(String s)
 	{
-		return Double.valueOf(s).doubleValue();
+		try
+		{
+			return Double.parseDouble(s);
+		}
+		catch (NumberFormatException e)
+		{
+			throw e;
+		}
 	}
 
 	private static int atoi(String s)
@@ -34,12 +41,13 @@ public class svm_predict {
 		return Integer.parseInt(s);
 	}
 
-	private static void predict(BufferedReader input, DataOutputStream output, svm_model model, int predict_probability) throws IOException
+	public static String  predict(BufferedReader input, svm_model model, int predict_probability) throws IOException
 	{
 		int correct = 0;
 		int total = 0;
 		double error = 0;
 		double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
+		String output = "";
 
 		int svm_type=svm.svm_get_svm_type(model);
 		int nr_class=svm.svm_get_nr_class(model);
@@ -57,10 +65,10 @@ public class svm_predict {
 				int[] labels=new int[nr_class];
 				svm.svm_get_labels(model,labels);
 				prob_estimates = new double[nr_class];
-				output.writeBytes("labels");
+				output += "labels";
 				for(int j=0;j<nr_class;j++)
-					output.writeBytes(" "+labels[j]);
-				output.writeBytes("\n");
+					output += " "+labels[j];
+				output += "\n";
 			}
 		}
 		while(true)
@@ -84,15 +92,15 @@ public class svm_predict {
 			if (predict_probability==1 && (svm_type==svm_parameter.C_SVC || svm_type==svm_parameter.NU_SVC))
 			{
 				v = svm.svm_predict_probability(model,x,prob_estimates);
-				output.writeBytes(v+" ");
-				for(int j=0;j<nr_class;j++)
-					output.writeBytes(prob_estimates[j]+" ");
-				output.writeBytes("\n");
+				output += v + " ";
+				for(int j=0; j<nr_class; j++)
+					output += prob_estimates[j] + " ";
+				output += "\n";
 			}
 			else
 			{
 				v = svm.svm_predict(model,x);
-				output.writeBytes(v+"\n");
+				output += v + "\n";
 			}
 
 			if(v == target)
@@ -117,6 +125,8 @@ public class svm_predict {
 		else
 			svm_predict.info("Accuracy = "+(double)correct/total*100+
 				 "% ("+correct+"/"+total+") (classification)\n");
+
+		return output;
 	}
 
 	private static void exit_with_help()
@@ -157,7 +167,7 @@ public class svm_predict {
 		try 
 		{
 			BufferedReader input = new BufferedReader(new FileReader(argv[i]));
-			DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(argv[i+2])));
+			BufferedWriter output = new BufferedWriter(new FileWriter(argv[i+2]));
 			svm_model model = svm.svm_load_model(argv[i+1]);
 			if(predict_probability == 1)
 			{
@@ -174,15 +184,12 @@ public class svm_predict {
 					svm_predict.info("Model supports probability estimates, but disabled in prediction.\n");
 				}
 			}
-			predict(input,output,model,predict_probability);
+			String predictions = predict(input, model,predict_probability);
+			output.write(predictions);
 			input.close();
 			output.close();
 		} 
-		catch(FileNotFoundException e) 
-		{
-			exit_with_help();
-		}
-		catch(ArrayIndexOutOfBoundsException e) 
+		catch(FileNotFoundException | ArrayIndexOutOfBoundsException e)
 		{
 			exit_with_help();
 		}

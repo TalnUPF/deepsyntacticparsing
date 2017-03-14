@@ -13,12 +13,13 @@ import java.util.StringTokenizer;
 import treeTransducer.CoNLLHash;
 import treeTransducer.CoNLLTreeConstructor;
 
-public class BaselineEng {
+public class BaselineEs {
 	
-public static void main(String[] args) {
+public static void main(String[] args) throws IOException
+{
 		
 		HashMap<Integer,ArrayList<String>> nodesToRemoveSecondPass=new HashMap<Integer,ArrayList<String>>();
-		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.storeTreebank(args[0]);
+		ArrayList<CoNLLHash> listOfConlls=CoNLLTreeConstructor.loadTreebank(args[0]);
 		
 		int i=0;
 		try {
@@ -70,18 +71,12 @@ public static void main(String[] args) {
 								
 								
 								//REMOVE NODES
-								if (s.equals("P")||
-										pos.equals("TO")||
-										pos.equals("HYPH")||
-										(pos.equals("IN") && lemma.equals("that"))||
-										(pos.equals("DT") && (lemma.equals("the")||lemma.equals("a"))))/*||
-										(dep.s.equals("VC") & !dep.pos.equals("MD") & !dep.lemma.equals("do")))*/
-											//s="null";
-											print=false;
+													
 								
-								
-								if (s.equals("VC")){//  && !pos.equals("MD") && !lemma.equals("do")){
-										//System.out.println("hola");
+								if (s.equals("analyt_fut")||
+										s.equals("analyt_pass")||
+										s.equals("analyt_perf")||
+										s.equals("analyt_progr")){
 										ArrayList<String> a=nodesToRemoveSecondPass.get(i);
 										if (a==null){
 											a=new ArrayList<String>();
@@ -90,90 +85,100 @@ public static void main(String[] args) {
 										nodesToRemoveSecondPass.put(i, a);
 								}
 
+								//REMOVE NODES
+								if (s.equals("aux_phras")||
+										s.equals("aux_refl_lex")||
+										s.equals("aux_refl_pass")||
+										s.equals("punc")||
+										(s.equals("det")&&lemma.equals("un"))||
+										(s.equals("det")&&lemma.equals("el"))||
+										(s.equals("iobj") && pos.equals("IN"))||
+										(s.equals("obl_obj") && pos.equals("IN"))||
+										(s.equals("obl_compl") && pos.equals("IN"))||
+										s.equals("punc_init"))
+											//s="null";
+											print=false;
 
-										if (s.equals("DEP")||
-										s.equals("P")||
-										s.equals("POSTHON")||
-										s.equals("TITLE")||
-										s.equals("VOC"))
+										if (s.equals("juxtapos")||
+												s.equals("prolep"))
 											s="APPEND";
 
-										if (s.equals("ADV")||
-										s.equals("ADV-GAP")||
-										s.equals("AMOD")||
-										s.equals("AMOD-GAP")||
- 										s.equals("APPO")||
- 										s.equals("BNF")||
- 										s.equals("DEP-GAP")||
- 										s.equals("DIR-GAP")||
- 										s.equals("DTV-GAP")||
- 										s.equals("EXT-GAP")||
- 										s.equals("EXTR-GAP")||
- 										s.equals("GAP-LGS")||
- 										s.equals("GAP-LOC")||
- 										s.equals("GAP-LOC-PRD")||
- 										s.equals("GAP-MNR")||
- 										s.equals("GAP-NMOD")||
- 										s.equals("GAP-OBJ")||
- 										s.equals("GAP-OPRD")||
- 										s.equals("GAP-PMOD")||
- 										s.equals("GAP-PRD")||
- 										s.equals("GAP-PRP")||
- 										s.equals("GAP-PUT")||
- 										s.equals("GAP-SBJ")||
- 										s.equals("GAP-SUB")||
- 										s.equals("GAP-TMP")||
- 										s.equals("GAP-VC")||
- 										s.equals("HMOD")||
- 										s.equals("LOC")||
- 										s.equals("LOC-MNR")||
- 										s.equals("LOC-TMP")||
- 										s.equals("MNR")||
- 										s.equals("MNR-PRD")||
- 										s.equals("MNR-TMP")||
- 										s.equals("NMOD")||
- 										s.equals("PRN")||
- 										s.equals("PRP")||
- 										s.equals("SUFFIX")||
- 										s.equals("TMP"))
+
+										if (s.equals("abbrev")||
+										s.equals("abs_pred")||
+										s.equals("adjunct")||
+										s.equals("adv")||
+										s.equals("adv_mod")||
+										s.equals("appos")||
+										s.equals("appos_descr")||
+										s.equals("attr")||
+										s.equals("attr_descr")||
+										s.equals("bin_junct")||
+										s.equals("compl_adnom")||
+										s.equals("det")||
+										s.equals("elect")||
+										s.equals("modif")||
+										s.equals("modif_descr")||
+										s.equals("obj_copred")||
+										s.equals("quant")||
+										s.equals("quant_descr")||
+										s.equals("relat")||
+										s.equals("relat_descr")||
+										s.equals("relat_expl")||
+										s.equals("sequent")||
+										s.equals("subj_copred"))
 											s="ATTR";
 
-										if (s.equals("COORD"))
+										 
+										if (s.equals("coord")||
+										s.equals("num_junct")||
+										s.equals("quasi_coord"))
 											s="COORD";
 
-										if (s.equals("EXTR")||
-										s.equals("LGS")||
-										s.equals("SBJ"))
+										if (s.equals("agent")||
+										s.equals("quasi_subj")||
+										s.equals("subj"))
 											s="I";
 
-										if(s.equals("CONJ")||
-										s.equals("DIR")||
-										s.equals("DIR-OPRD")||
-										s.equals("DIR-PRD")||
-										s.equals("LOC-PRD")||
-										s.equals("OBJ")||
-										s.equals("PMOD")||
-										s.equals("PRD")||
-										s.equals("PRD-PRP")||
-										s.equals("PRD-TMP")||
-										s.equals("SUB")||
-										s.equals("VC"))
+										if(s.equals("aux_refl_dir")||
+										s.equals("compar")||
+										s.equals("compar_conj")||
+										s.equals("compl1")||
+										s.equals("coord_conj")||
+										s.contains("analyt_")||
+										s.equals("copul")||
+										s.equals("copul_clitic")||
+										s.equals("copul_quot")||
+										s.equals("iobj")||
+										s.equals("iobj_clitic")||
+										s.equals("obl_obj")||
+										s.equals("obl_compl")||
+										s.equals("dobj")||
+										s.equals("dobj_clitic")||
+										s.equals("dobj_quot")||
+										s.equals("modal")||
+										s.equals("obl_compl0")||
+										s.equals("obl_compl1")||
+										s.equals("obl_compl2")||
+										s.equals("obl_compl3")||
+										s.equals("obl_obj1")||
+										s.equals("obl_obj2")||
+										s.equals("obl_obj3")||
+										s.equals("prepos")||
+										s.equals("prepos_quot")||
+										s.equals("sub_conj"))
 											s="II";
 
-										if (s.equals("DTV")||
-										s.equals("EXT")||
-										s.equals("LOC-OPRD")||
-										s.equals("OPRD"))
+
+										if (s.equals("aux_refl_indir")||
+										s.equals("compl2")||
+										s.equals("iobj_clitic1")||
+										s.equals("iobj_clitic2")||
+										s.equals("iobj_clitic3")||
+										s.equals("iobj1")||
+										s.equals("iobj2")||
+										s.equals("iobj3"))
 											s="III";
-										
-										if (s.equals("NAME")||
-										s.equals("PRT")||
-										s.equals("PUT"))
-											s="NAME";
-										
-										
-										
-										
 							}
 							
 							cont++;
@@ -225,13 +230,13 @@ public static void main(String[] args) {
 							if (cont==5){
 								pos=s;
 								//System.out.println(nodesToRemoveSecondPass.get(i));
-								if (!pos.equals("MD") && !lemma.equals("do")) {
+								//if (!pos.equals("MD") && !lemma.equals("do")) {
 								
 									if (nodesToRemoveSecondPass.get(i)!=null && nodesToRemoveSecondPass.get(i).contains(id)){
 										//System.out.println("hola");
 										print=false;
 									}
-								}
+								//}
 							}
 
 							cont++;
@@ -311,7 +316,7 @@ public static void main(String[] args) {
 							if (cont==1) {
 								newline+=tok+"\t";
 							}
-							else if (cont==9 || cont==10){
+							else if (cont==9){// || cont==10){
 								//find head
 								String newHead=findHead(mappingIds,listOfConlls.get(i),s);
 								newline+=newHead+"\t";

@@ -99,7 +99,7 @@ public class TransducerSurfToDeep
 	private static final Path nodeModelFilename = Paths.get("node_train.model");
 	private static final Path labelModelFilename = Paths.get("labelling_train.model");
 	private static final Path patternsFilename = Paths.get("pathPatterns.txt");
-	private static final Path translationsFilename = Paths.get("labelling_translations.txt");
+	private static final Path translationsFilename = Paths.get("svm_translations.txt");
 
 	public static TransducerSurfToDeep getTrainTransducer()
 	{
@@ -140,8 +140,9 @@ public class TransducerSurfToDeep
 			Map<String, String> dict = new HashMap<>();
 			for (String e : l.split(","))
 			{
-				String[] items = e.split("=");
-				dict.put(items[0], items[1]);
+				String label = e.substring(0, e.lastIndexOf('='));
+				String code = e.substring(e.lastIndexOf('=') + 1, e.length());
+				dict.put(label, code);
 			}
 
 			translations.add(dict);

@@ -52,6 +52,9 @@ public class CoNLLTreeConstructor
 			l = inReader.readLine();
 		}
 
+		// process last line
+		if (!hash.isEmpty())
+			list.add(hash);
 		return list;
 	}
 }

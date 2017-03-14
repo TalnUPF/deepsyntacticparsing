@@ -4,7 +4,6 @@
 package treeTransducer;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
@@ -403,17 +402,22 @@ public class Candidates
 	{
 		Integer freq = 0;
 		BufferedReader br = new BufferedReader(new StringReader(patterns));
-		while (br.ready())
-		{
-			String line = br.readLine();
-			String[] splittedLine = line.split("\t");
-			if (pattern.equals(splittedLine[0]))
-			{
-				freq = Integer.parseInt(splittedLine[1]);
-				return freq;
-			}
+		String line = br.readLine();
 
+		while (line != null)
+		{
+			if (!line.isEmpty())
+			{
+				String[] splittedLine = line.split("\t");
+				if (pattern.equals(splittedLine[0]))
+				{
+					freq = Integer.parseInt(splittedLine[1]);
+					return freq;
+				}
+			}
+			line = br.readLine();
 		}
+
 		return freq;
 	}
 
@@ -424,15 +428,21 @@ public class Candidates
 		String regex = st.nextToken("+");
 		String subPattern = pattern.substring(regex.length() + 1);
 		BufferedReader br = new BufferedReader(new StringReader(patterns));
-		while (br.ready())
+		String line = br.readLine();
+
+		while (line != null)
 		{
-			String line = br.readLine();
-			String[] splittedLine = line.split("\t");
-			if (subPattern.contains(splittedLine[0]))
-			{ //FIND SUBPATTERNS
-				freq = Integer.parseInt(splittedLine[1]);
-				return freq;
+			if (!line.isEmpty())
+			{
+				String[] splittedLine = line.split("\t");
+				if (subPattern.contains(splittedLine[0]))
+				{ //FIND SUBPATTERNS
+					freq = Integer.parseInt(splittedLine[1]);
+					return freq;
+				}
 			}
+
+			line = br.readLine();
 		}
 
 		if (subPattern.contains("+"))

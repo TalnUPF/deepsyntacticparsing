@@ -138,10 +138,10 @@ public class TransducerSurfToDeep
 		for (String l : translationsStr.split("\n"))
 		{
 			Map<String, String> dict = new HashMap<>();
-			for (String e : l.split(","))
+			for (String e : l.split("\t"))
 			{
-				String label = e.substring(0, e.lastIndexOf('='));
-				String code = e.substring(e.lastIndexOf('=') + 1, e.length());
+				String label = e.substring(0, e.lastIndexOf(' '));
+				String code = e.substring(e.lastIndexOf(' ') + 1, e.length());
 				dict.put(label, code);
 			}
 

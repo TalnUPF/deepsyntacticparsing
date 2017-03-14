@@ -164,18 +164,18 @@ public class ModelLabellingClassification
 		String translations = "";
 		for (String feature : this.featureTranslation.keySet())
 		{
-			translations += feature + "=" + this.featureTranslation.get(feature) + ",";
+			translations += feature + " " + this.featureTranslation.get(feature) + "\t";
 		}
 		if (!featureTranslation.isEmpty())
-			translations = translations.substring(0, translations.length()-1); // remove last comma
+			translations = translations.substring(0, translations.length()-1); // remove last separator
 
 		translations += "\n";
 		for (String depRel : this.deprelTranslation.keySet())
 		{
-			translations += depRel + "=" + this.deprelTranslation.get(depRel) + ",";
+			translations += depRel + " " + this.deprelTranslation.get(depRel) + "\t";
 		}
 		if (!deprelTranslation.isEmpty())
-			translations = translations.substring(0, translations.length()-1); // remove last comma
+			translations = translations.substring(0, translations.length()-1); // remove last separator
 
 		return translations + "\n";
 	}

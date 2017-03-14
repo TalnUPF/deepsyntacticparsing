@@ -122,10 +122,10 @@ public class ModelHyperNodeClassification
 		String translations = "";
 		for (String feature : this.featureTranslation.keySet())
 		{
-			translations += feature + "=" + this.featureTranslation.get(feature);
+			translations += feature + " " + this.featureTranslation.get(feature) + "\t";
 		}
 		if (!featureTranslation.isEmpty())
-			translations = translations.substring(0, translations.length()-1); // remove last comma
+			translations = translations.substring(0, translations.length()-1); // remove last separator
 		return translations + "\n";
 	}
 }

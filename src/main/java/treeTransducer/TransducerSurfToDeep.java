@@ -320,7 +320,7 @@ public class TransducerSurfToDeep
 	 * @return predicted dsynt treebank in ConLL format
 	 * @throws IOException
 	 */
-	public String test(Path inPathTest, boolean inPostProcess) throws IOException, URISyntaxException
+	public String test(Path inPathTest, boolean inPostProcess) throws Exception
 	{
 		System.out.println("Testing process started");
 		StopWatch timer = new StopWatch();
@@ -356,6 +356,8 @@ public class TransducerSurfToDeep
 
 		System.out.println("Creating labelling svm problem from partial treebank... ");
 		ArrayList<CoNLLHash> partialTestTreebank = CoNLLTreeConstructor.loadTreebank(partialOutput3);
+		if (partialTestTreebank.size() != surfaceTestTreebank.size())
+			throw new Exception("Number of test SSynt structures doesn't match number of predicted DSynts");
 		ModelLabellingClassification mdLabelClass = prepareHyperNodeLabelling(partialTestTreebank, labellingFeatureTranslations, deepLabelTranslations);
 		String svmLabelProblem = mdLabelClass.toString(); // ssynt_labelling_svm_test.svm
 		timer.split();
@@ -486,7 +488,7 @@ public class TransducerSurfToDeep
 	/**
 	 * This method updates the labels considering the outcomes of the svm classifier. It also sets to ROOT the nodes that have head=0
 	 */
-	private static String updateLabelsTest(String inPartialOutput, String inPredictedLabels, ModelLabellingClassification mdLabelClass) throws IOException
+	private static String updateLabelsTest(String inPartialOutput, String inPredictedLabels, ModelLabellingClassification mdLabelClass) throws Exception
 	{
 		BufferedReader predictedLabelsReader = new BufferedReader(new StringReader(inPredictedLabels));
 		BufferedReader partialOutputReader = new BufferedReader(new StringReader(inPartialOutput));
@@ -495,7 +497,7 @@ public class TransducerSurfToDeep
 		String line = partialOutputReader.readLine();
 		while (line != null)
 		{
-			if (!line.equals(""))
+			if (!line.isEmpty())
 			{
 				String svmLine = predictedLabelsReader.readLine();
 				StringTokenizer st = new StringTokenizer(svmLine);
@@ -547,7 +549,7 @@ public class TransducerSurfToDeep
 		return output + "\n";
 	}
 
-	private static String updateIdsTest(String inPartialOutput, List<CoNLLHash> inSurfaceTestTreebank) throws IOException
+	private static String updateIdsTest(String inPartialOutput, List<CoNLLHash> inSurfaceTestTreebank) throws Exception
 	{
 		List<HashMap<String, String>> matchingIds = new ArrayList<>();
 		HashMap<String, String> sentenceIdMatch = new HashMap<>();
@@ -557,33 +559,43 @@ public class TransducerSurfToDeep
 		BufferedReader partialOutputReader = new BufferedReader(new StringReader(inPartialOutput));
 		String output = "";
 		String line = partialOutputReader.readLine();
+
 		while (line != null)
 		{
-			StringTokenizer st = new StringTokenizer(line);
-			if (!line.equals(""))
+			if (!line.isEmpty())
 			{
+				StringTokenizer st = new StringTokenizer(line);
 				if (st.hasMoreTokens())
 				{
 					String id = st.nextToken("\t");
-					sentenceIdMatch.put(id, idCounter + "");
-					idCounter++;
+					sentenceIdMatch.put(id, Integer.toString(idCounter));
+					++idCounter;
 				}
 			}
 			else
 			{
-				HashMap<String, String> sentenceIdMatchClone = new HashMap<>(sentenceIdMatch);
-				matchingIds.add(sentenceCounter, sentenceIdMatchClone);
-				sentenceIdMatch = new HashMap<>();
-				sentenceCounter++;
-				idCounter = 1;
+				if (!sentenceIdMatch.isEmpty())
+				{
+					HashMap<String, String> sentenceIdMatchClone = new HashMap<>(sentenceIdMatch);
+					matchingIds.add(sentenceCounter, sentenceIdMatchClone);
+					sentenceIdMatch.clear();
+					sentenceCounter++;
+					idCounter = 1;
+				}
 			}
 
 			line = partialOutputReader.readLine();
 		}
 
 		// Process last line
-		HashMap<String, String> sentenceIdMatchClone = new HashMap<>(sentenceIdMatch);
-		matchingIds.add(sentenceCounter, sentenceIdMatchClone);
+		if (!sentenceIdMatch.isEmpty())
+		{
+			HashMap<String, String> sentenceIdMatchClone = new HashMap<>(sentenceIdMatch);
+			matchingIds.add(sentenceCounter, sentenceIdMatchClone);
+		}
+
+		if (matchingIds.size() != inSurfaceTestTreebank.size())
+			throw new Exception("Number of test SSynt structures doesn't match number of predicted DSynts");
 
 		//Now, I have all the ids that exist in the list of hashmaps (one hashmap for each sentence)
 		partialOutputReader = new BufferedReader(new StringReader(inPartialOutput));
@@ -592,12 +604,13 @@ public class TransducerSurfToDeep
 
 		String newSentence = "";
 		line = partialOutputReader.readLine();
+
 		while (line != null)
 		{
 			String newLine = "";
 			String oldId = "";
 			StringTokenizer st = new StringTokenizer(line);
-			if (!line.equals(""))
+			if (!line.isEmpty())
 			{
 				int cont = 0;
 				while (st.hasMoreTokens())
@@ -678,13 +691,16 @@ public class TransducerSurfToDeep
 			}
 			else
 			{
-				output += newSentence;
-				newSentence = "";
-				sentenceCounter++;
-				if (sentenceCounter < matchingIds.size())
+				if (!newSentence.isEmpty())
 				{
-					sentenceIdMatch = matchingIds.get(sentenceCounter);
-					output += "\n";
+					output += newSentence;
+					newSentence = "";
+					sentenceCounter++;
+					if (sentenceCounter < matchingIds.size())
+					{
+						sentenceIdMatch = matchingIds.get(sentenceCounter);
+						output += "\n";
+					}
 				}
 			}
 			line = partialOutputReader.readLine();
@@ -698,11 +714,13 @@ public class TransducerSurfToDeep
 	}
 
 	//very inefficient version, just for testing.
-	private static String solveInconsistencies(String inPartialOutput, List<CoNLLHash> testSetHash, Candidates candidates) throws IOException
+	private static String solveInconsistencies(String inPartialOutput, List<CoNLLHash> inSurfaceTestConll, Candidates candidates) throws Exception
 	{
 		List<CoNLLHash> deepPartialTreebank = CoNLLTreeConstructor.loadTreebank(inPartialOutput);
+		if (inSurfaceTestConll.size() != deepPartialTreebank.size())
+			throw new Exception("Number of test SSynt structures doesn't match number of predicted DSynts");
 
-		candidates.calculateCandidates(deepPartialTreebank, testSetHash);
+		candidates.calculateCandidates(deepPartialTreebank, inSurfaceTestConll);
 		candidates.selectCandidates();
 		List<Map<String, List<String>>> selectedCandidates = candidates.getSelectedCandidates();
 		List<Map<String, List<String>>> selectedSiblingCandidates = candidates.getSelectedSiblingCandidates();
@@ -711,11 +729,12 @@ public class TransducerSurfToDeep
 		BufferedReader outputReader = new BufferedReader(new StringReader(inPartialOutput));
 		String line = outputReader.readLine();
 		int sentenceCounter = 0;
+
 		while (line != null)
 		{
 			String newLine = "";
 
-			if (!line.equals(""))
+			if (!line.isEmpty())
 			{
 				String id = "";
 				int cont = 0;
@@ -820,27 +839,39 @@ public class TransducerSurfToDeep
 
 	private static String producePartialOutputTest(String inTestConll, String inPredictedNodes) throws IOException
 	{
-		BufferedReader testConllReader = new BufferedReader(new StringReader(inTestConll));
+		//BufferedReader testConllReader = new BufferedReader(new StringReader(inTestConll));
+		String[] testSentences = inTestConll.split("\n\n");
+		ArrayList<CoNLLHash> testConll = CoNLLTreeConstructor.loadTreebank(inTestConll);
 		BufferedReader predictedNodesReader = new BufferedReader(new StringReader(inPredictedNodes));
 		String partialOutput = "";
-		String testLine = testConllReader.readLine();
-		String svmLine = predictedNodesReader.readLine();
-		while (testLine != null && svmLine != null)
+
+		for (int l=0; l < testConll.size(); ++l)
 		{
-			if (!testLine.isEmpty())
+			String[] tokens = testSentences[l].split("\n");
+			String sentenceOutput = "";
+
+			for (String token : tokens)
 			{
+				String svmLine = predictedNodesReader.readLine();
 				if (svmLine.equals("1.0"))
 				{
-					partialOutput += testLine + "\n";
+					sentenceOutput += token + "\n";
 				}
-				svmLine = predictedNodesReader.readLine();
-			}
-			else
-			{
-				partialOutput += "\n";
 			}
 
-			testLine = testConllReader.readLine();
+			// If no ssynt nodes were predicted, the fallback strategy is to keep only the root node
+			if (sentenceOutput.isEmpty())
+			{
+				CoNLLHash tokensCoNLL = testConll.get(l);
+				ArrayList<String> ids = tokensCoNLL.getIds();
+				for (int i=0; i < ids.size(); ++i)
+				{
+					if (tokensCoNLL.getDeprel(ids.get(i)).equalsIgnoreCase("root"))
+						sentenceOutput = tokens[i] + "\n";
+				}
+			}
+
+			partialOutput += sentenceOutput + "\n"; // mark end of sentence
 		}
 
 		return partialOutput;

@@ -18,7 +18,6 @@ import java.util.ArrayList;
  */
 public class CoNLLTreeConstructor
 {
-
 	public static ArrayList<CoNLLHash> loadTreebank(String inContents) throws IOException
 	{
 		return loadTreebank(new BufferedReader(new StringReader(inContents)));
@@ -41,7 +40,7 @@ public class CoNLLTreeConstructor
 			if (l.isEmpty())
 			{
 				if (!hash.isEmpty())
-					list.add(hash);
+					list.add(hash); // add it even if it's empty (some dsynts may consist of no tokens)
 				hash = new CoNLLHash();
 			}
 			else

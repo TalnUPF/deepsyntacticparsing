@@ -4,6 +4,9 @@
 package evaluation;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -46,12 +49,13 @@ public class Evaluation {
 	private ArrayList<CoNLLHash> goldStandardHash;
 	private ArrayList<CoNLLHash> outputHash;
 	
-	public Evaluation (String goldStandard, String output) throws IOException
+	public Evaluation (Path goldStandard, Path output) throws IOException
 	{
 		//surfaceHash= CoNLLTreeConstructor.loadTreebank(inputSurface);
-		
-		goldStandardHash= CoNLLTreeConstructor.loadTreebank(goldStandard);
-		outputHash= CoNLLTreeConstructor.loadTreebank(output);
+		String gold = new String(Files.readAllBytes(goldStandard));
+		String system = new String(Files.readAllBytes(output));
+		goldStandardHash= CoNLLTreeConstructor.loadTreebank(gold);
+		outputHash= CoNLLTreeConstructor.loadTreebank(system);
 		System.out.println("\n-----------Evaluation-------------\n");
 	}
 	
@@ -417,7 +421,7 @@ public class Evaluation {
 	        	CommandLine line = parser.parse( options, args );
 	        	//"dsynt_test.conll","dsynt_partial_output_3.conll"
 	        	 
-	     		Evaluation e = new Evaluation(line.getOptionValue("g"),line.getOptionValue("s"));
+	     		Evaluation e = new Evaluation(Paths.get(line.getOptionValue("g")), Paths.get(line.getOptionValue("s")));
 	     		e.HyperNodeAccuracy();
 	     		e.nodeLabelAndAttachment();
 	     		

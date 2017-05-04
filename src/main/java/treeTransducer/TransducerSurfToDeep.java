@@ -92,7 +92,7 @@ public class TransducerSurfToDeep
 {
 	private final svm_model nodeModel;
 	private final svm_model labelModel;
-	private final Candidates candidates;
+	private final String patterns;
 	private final Map<String, String> nodeFeatureTranslations;
 	private final Map<String, String> labellingFeatureTranslations;
 	private final Map<String, String> deepLabelTranslations;
@@ -130,7 +130,7 @@ public class TransducerSurfToDeep
 
 		System.out.println("Loading patterns from " + patternsFile);
 		String patterns = new String(Files.readAllBytes(patternsFile));
-		Candidates candidates = new Candidates(patterns);
+
 
 		System.out.println("Reading translations from " + translationsFile);
 		String translationsStr = new String(Files.readAllBytes(translationsFile));
@@ -151,25 +151,25 @@ public class TransducerSurfToDeep
 		timer.split();
 		System.out.println("Completed in " + timer.toSplitString());
 
-		return new TransducerSurfToDeep(nodeModel, labelModel, candidates, translations);
+		return new TransducerSurfToDeep(nodeModel, labelModel, patterns, translations);
 	}
 
 	private TransducerSurfToDeep()
 	{
 		nodeModel = null;
 		labelModel = null;
-		candidates = null;
+		patterns = null;
 		nodeFeatureTranslations = null;
 		labellingFeatureTranslations = null;
 		deepLabelTranslations = null;
 
 	}
 
-	private TransducerSurfToDeep(svm_model inHypernodeModel, svm_model inLabellingModel, Candidates inCandidates, List<Map<String, String>> inTranslations)
+	private TransducerSurfToDeep(svm_model inHypernodeModel, svm_model inLabellingModel, String inPatterns, List<Map<String, String>> inTranslations)
 	{
 		nodeModel = inHypernodeModel;
 		labelModel = inLabellingModel;
-		candidates = inCandidates;
+		patterns = inPatterns;
 		nodeFeatureTranslations = inTranslations.get(0);
 		labellingFeatureTranslations = inTranslations.get(1);
 		deepLabelTranslations = inTranslations.get(2);
@@ -350,7 +350,7 @@ public class TransducerSurfToDeep
 		System.out.println("Producing partial output ...  ");
 		String partialOutput1 = producePartialOutputTest(testConll, predictedNodes); // dsynt_partial_output_1.conll
 		String partialOutput2 = updateIdsTest(partialOutput1, surfaceTestTreebank); // dsynt_partial_output_2.1.conll
-		String partialOutput3 = solveInconsistencies(partialOutput2, surfaceTestTreebank, candidates); // dsynt_partial_output_2.conll"
+		String partialOutput3 = solveInconsistencies(partialOutput2, surfaceTestTreebank, patterns); // dsynt_partial_output_2.conll"
 		timer.split();
 		System.out.println("Completed in " + timer.toSplitString());
 
@@ -714,12 +714,12 @@ public class TransducerSurfToDeep
 	}
 
 	//very inefficient version, just for testing.
-	private static String solveInconsistencies(String inPartialOutput, List<CoNLLHash> inSurfaceTestConll, Candidates candidates) throws Exception
+	private static String solveInconsistencies(String inPartialOutput, List<CoNLLHash> inSurfaceTestConll, String patterns) throws Exception
 	{
 		List<CoNLLHash> deepPartialTreebank = CoNLLTreeConstructor.loadTreebank(inPartialOutput);
 		if (inSurfaceTestConll.size() != deepPartialTreebank.size())
 			throw new Exception("Number of test SSynt structures doesn't match number of predicted DSynts");
-
+		Candidates candidates = new Candidates(patterns);
 		candidates.calculateCandidates(deepPartialTreebank, inSurfaceTestConll);
 		candidates.selectCandidates();
 		List<Map<String, List<String>>> selectedCandidates = candidates.getSelectedCandidates();
@@ -732,83 +732,89 @@ public class TransducerSurfToDeep
 
 		while (line != null)
 		{
-			String newLine = "";
-
-			if (!line.isEmpty())
+			try
 			{
-				String id = "";
-				int cont = 0;
-				StringTokenizer st = new StringTokenizer(line);
+				String newLine = "";
 
-				while (st.hasMoreTokens())
+				if (!line.isEmpty())
 				{
-					String tok = st.nextToken("\t");
-					if (cont == 0)
-					{
-						id = tok;
-						newLine += tok + "\t";
-					}
-					else if (cont == 6)
-					{
-						newLine += tok + "\t";
-					}
-					else if (cont == 8)
-					{
-						if (tok.contains("_["))
-						{
-							String calculatedHead = candidates.getCalculatedHead(tok);
-							String surfaceHeadNode = candidates.getDeepCandidate(tok);
-							Map<String, List<String>> localCandidates = selectedCandidates.get(sentenceCounter);
-							Map<String, List<String>> localSiblingCandidates = selectedSiblingCandidates.get(sentenceCounter);
-							List<String> selected = localCandidates.get(surfaceHeadNode);
-							List<String> selectedSiblings = localSiblingCandidates.get(surfaceHeadNode);
+					String id = "";
+					int cont = 0;
+					StringTokenizer st = new StringTokenizer(line);
 
-							if (selectedSiblings.contains(id))
+					while (st.hasMoreTokens())
+					{
+						String tok = st.nextToken("\t");
+						if (cont == 0)
+						{
+							id = tok;
+							newLine += tok + "\t";
+						}
+						else if (cont == 6)
+						{
+							newLine += tok + "\t";
+						}
+						else if (cont == 8)
+						{
+							if (tok.contains("_["))
 							{
-								newLine += calculatedHead + "\t";
-							}
-							else
-							{
-								if (!selected.get(0).equals(id))
-								{
-									newLine += selected.get(0) + "\t";
-								}
-								else
+								String calculatedHead = candidates.getCalculatedHead(tok);
+								String surfaceHeadNode = candidates.getDeepCandidate(tok);
+								Map<String, List<String>> localCandidates = selectedCandidates.get(sentenceCounter);
+								Map<String, List<String>> localSiblingCandidates = selectedSiblingCandidates.get(sentenceCounter);
+								List<String> selected = localCandidates.get(surfaceHeadNode);
+								List<String> selectedSiblings = localSiblingCandidates.get(surfaceHeadNode);
+
+								if (selectedSiblings.contains(id))
 								{
 									newLine += calculatedHead + "\t";
 								}
+								else
+								{
+									if (!selected.get(0).equals(id))
+									{
+										newLine += selected.get(0) + "\t";
+									}
+									else
+									{
+										newLine += calculatedHead + "\t";
+									}
+								}
+							}
+							//recalculate and check pattern if it is the case
+							else
+							{
+								newLine += tok + "\t";
 							}
 						}
-						//recalculate and check pattern if it is the case
+						else if (cont == 10)
+						{
+							newLine += tok + "\t";
+						}
+						else if (cont == 13)
+						{
+							newLine += tok + "\n";
+							output += newLine;
+							newLine = "";
+						}
 						else
 						{
 							newLine += tok + "\t";
 						}
+						cont++;
 					}
-					else if (cont == 10)
-					{
-						newLine += tok + "\t";
-					}
-					else if (cont == 13)
-					{
-						newLine += tok + "\n";
-						output += newLine;
-						newLine = "";
-					}
-					else
-					{
-						newLine += tok + "\t";
-					}
-					cont++;
 				}
+				else
+				{
+					output += "\n";
+					sentenceCounter++;
+				}
+				line = outputReader.readLine();
 			}
-			else
+			catch(Exception e)
 			{
-				output += "\n";
-				sentenceCounter++;
+				throw new Exception("Cannot parse line " + line);
 			}
-
-			line = outputReader.readLine();
 		}
 
 		return output;

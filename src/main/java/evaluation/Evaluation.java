@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.cli.BasicParser;
@@ -72,7 +74,7 @@ public class Evaluation {
 	}
 	
 	
-	public void HyperNodeAccuracy() {
+	public Map<String, Double> HyperNodeAccuracy() {
 		
 		int nodesGs=0;
 		int nodesDetected=0;
@@ -125,9 +127,19 @@ public class Evaluation {
 		System.out.println(" #Nodes detected by the system: "+nodesDetected);
 		System.out.println(" #Nodes in the gold-standard: "+nodesGs +" (by removing corefs)");
 		System.out.println(" #Nodes correctly detected: "+nodesCorrectlyDetected);
+                
+                Map<String, Double> results = new HashMap<>();
+                results.put("precision", precision);
+                results.put("recall", recall);
+                results.put("f1", f);
+                results.put("nodes_detected_by_system", (double) nodesDetected);
+                results.put("nodes_in_gold_standard", (double) nodesGs);
+                results.put("nodes_correctly_detected", (double) nodesCorrectlyDetected);
+                return results;
+                
 	}
 	
-	public void nodeLabelAndAttachment() {
+	public Map<String, Double> nodeLabelAndAttachment() {
 		int nodesGs=0;
 		int nodesDetected=0;
 		int nodesCorrectlyAttached=0;
@@ -295,7 +307,18 @@ public class Evaluation {
 		System.out.println("-------------------");
 		System.out.println("UCM:"+ucm + " ("+completeAttachment+"/"+contSentences+")");
 		System.out.println("LCM:"+lcm + " ("+completeLabelAttachment+"/"+contSentences+")");
-		
+
+                Map<String, Double> results = new HashMap<>();
+                results.put("precision_las", preLas);
+                results.put("precision_uas", preUas);
+                results.put("precision_la", preLA);
+                results.put("recall_las", recLas);
+                results.put("recall_uas", recUas);
+                results.put("recall_la", recLA);
+                results.put("ucm", ucm);
+                results.put("lcm", lcm);
+                return results;
+                
 	}
 	
 	

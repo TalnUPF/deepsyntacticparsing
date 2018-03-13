@@ -44,15 +44,17 @@ public class Evaluation {
 	private double LA;
 	
 	
-
+        private String id0Str;
 
 
 	private ArrayList<CoNLLHash> surfaceHash;
 	private ArrayList<CoNLLHash> goldStandardHash;
 	private ArrayList<CoNLLHash> outputHash;
 	
-	public Evaluation (Path goldStandard, Path output) throws IOException
+	public Evaluation (Path goldStandard, Path output, String id0Str) throws IOException
 	{
+                this.id0Str = id0Str;
+            
 		//surfaceHash= CoNLLTreeConstructor.loadTreebank(inputSurface);
 		String gold = new String(Files.readAllBytes(goldStandard));
 		String system = new String(Files.readAllBytes(output));
@@ -66,13 +68,13 @@ public class Evaluation {
 		StringTokenizer st=new StringTokenizer(feats);
 		while(st.hasMoreTokens()) {
 			String feat=st.nextToken("|");
-			if (feat.contains("id0=")) {
+			if (feat.contains(this.id0Str)) {
 				id0=feat.substring(4, feat.length());
 			}
 		}
 		return id0;
 	}
-	
+
 	
 	public Map<String, Double> HyperNodeAccuracy() {
 		
@@ -443,8 +445,8 @@ public class Evaluation {
 	            // parse the command line arguments
 	        	CommandLine line = parser.parse( options, args );
 	        	//"dsynt_test.conll","dsynt_partial_output_3.conll"
-	        	 
-	     		Evaluation e = new Evaluation(Paths.get(line.getOptionValue("g")), Paths.get(line.getOptionValue("s")));
+	        	String id0Str = "id0="; 
+	     		Evaluation e = new Evaluation(Paths.get(line.getOptionValue("g")), Paths.get(line.getOptionValue("s")), id0Str);
 	     		e.HyperNodeAccuracy();
 	     		e.nodeLabelAndAttachment();
 	     		

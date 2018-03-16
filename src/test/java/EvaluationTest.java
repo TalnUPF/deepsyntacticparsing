@@ -48,7 +48,7 @@ public class EvaluationTest {
         // Test: predicted and gold are the same tree
 
         Path goldPath = Paths.get("/home/lpmayos/Downloads/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll");
-        String intrinsicEvalResults = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results.json";
+        String intrinsicEvalResults = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_surface/en_well_splitted_dataset/parsingEval_results.json";
 
         JSONParser jsonParser = new JSONParser();
         Object obj = jsonParser.parse(new FileReader(intrinsicEvalResults));
@@ -124,7 +124,7 @@ public class EvaluationTest {
             
         }
         
-        FileWriter file = new FileWriter("/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_with_extrinsic.json");
+        FileWriter file = new FileWriter("/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_surface/en_well_splitted_dataset/parsingEval_results_with_extrinsic.json");
         file.write(jsonObject.toJSONString());
         file.flush();
     }

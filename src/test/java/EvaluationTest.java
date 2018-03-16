@@ -52,8 +52,8 @@ public class EvaluationTest {
         // metrics to the surface metrics, writtig them to a new file 
         // parsingEval_results_with_extrinsic.json
 
-        Path goldPath = Paths.get("/home/lpmayos/Downloads/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll");
-        String intrinsicEvalResults = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results.json";
+        Path goldPath = Paths.get("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/datasets_deep/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll");
+        String intrinsicEvalResults = "/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_new_metrics.json";
 
         String id0Str = "id1="; 
         
@@ -65,7 +65,7 @@ public class EvaluationTest {
         while (iterator.hasNext()) {
             JSONObject jsonPrediction = iterator.next();
             String parserName = (String) jsonPrediction.get("parser");  // i.e. "C2L2_2017-05-13-07-09-39";
-            Path candidatePath = Paths.get("/home/lpmayos/Downloads/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_" + parserName + "_output_en.conll_out.conll");
+            Path candidatePath = Paths.get("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/datasets_deep/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_" + parserName + "_output_en.conll_out.conll");
             
             Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
             Map<String, Double> results1 = e.HyperNodeAccuracy();
@@ -131,7 +131,7 @@ public class EvaluationTest {
             
         }
         
-        FileWriter file = new FileWriter("/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_with_extrinsic.json");
+        FileWriter file = new FileWriter("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_new_metrics_with_extrinsic.json");
         file.write(jsonObject.toJSONString());
         file.flush();
     }
@@ -143,8 +143,8 @@ public class EvaluationTest {
         // metrics to the surface metrics, writtig them to a new file 
         // parsingEval_results_with_extrinsic.json
 
-        Path goldPath = Paths.get("/Users/lpmayos/Downloads/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll");
-        String intrinsicEvalResults = "/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results.json";
+        Path goldPath = Paths.get("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/datasets_deep/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll");
+        String intrinsicEvalResults = "/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_new_metrics.json";
 
         String id0Str = "id1="; 
         
@@ -156,7 +156,7 @@ public class EvaluationTest {
         while (iterator.hasNext()) {
             JSONObject jsonPrediction = iterator.next();
             String parserName = (String) jsonPrediction.get("parser");  // i.e. "C2L2_2017-05-13-07-09-39";
-            Path candidatePath = Paths.get("/Users/lpmayos/Downloads/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_" + parserName + "_output_en.conll_out.conll");
+            Path candidatePath = Paths.get("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/datasets_deep/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_" + parserName + "_output_en.conll_out.conll");
             
             Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
             Map<String, Double> results1 = e.HyperNodeAccuracy();
@@ -222,7 +222,7 @@ public class EvaluationTest {
             
         }
         
-        FileWriter file = new FileWriter("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_with_manual_gold_with_extrinsic.json");
+        FileWriter file = new FileWriter("/Users/lpmayos/code/parsingEval/src/main/resources/utils_taln/en_well_splitted_dataset/parsingEval_results_new_metrics_with_manual_gold_with_extrinsic.json");
         file.write(jsonObject.toJSONString());
         file.flush();
     }

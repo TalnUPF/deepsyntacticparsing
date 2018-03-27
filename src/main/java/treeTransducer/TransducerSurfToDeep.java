@@ -320,7 +320,7 @@ public class TransducerSurfToDeep
 	 * @return predicted dsynt treebank in ConLL format
 	 * @throws IOException
 	 */
-	public String test(Path inPathTest, boolean inPostProcess) throws Exception
+	public String test(Path inPathTest, boolean inPostProcess, String lang) throws Exception
 	{
 		System.out.println("Testing process started");
 		StopWatch timer = new StopWatch();
@@ -378,7 +378,7 @@ public class TransducerSurfToDeep
 		System.out.println("Producing final conll output...");
 		String finalOutput = updateLabelsTest(partialOutput3, predictedLabels, mdLabelClass); // dsynt_final_output.conll
 		if (inPostProcess)
-			finalOutput = postProcessingTest(testConll, finalOutput); // dsynt_final_output_post.conll
+			finalOutput = postProcessingTest(testConll, finalOutput, lang); // dsynt_final_output_post.conll
 		timer.split();
 		System.out.println("Completed in " + timer.toSplitString());
 		return finalOutput;
@@ -409,11 +409,11 @@ public class TransducerSurfToDeep
 						while (st.hasMoreTokens())
 						{
 							String feat = st.nextToken("|");
-							if (feat.startsWith("id"))
+							if (feat.matches("id\\d+=\\d+"))
 							{
-								boolean process = !feat.contains("elid") && !feat.contains("coref") && !feat.startsWith("prosubj");
+								/*boolean process = !feat.contains("elid") && !feat.contains("coref") && !feat.startsWith("prosubj");
 								if (process)
-								{
+								{*/
 									if (feat.startsWith("id0"))
 									{
 										id0 = feat.substring(4, feat.length());
@@ -423,7 +423,7 @@ public class TransducerSurfToDeep
 										String idSurface = feat.substring(4, feat.length());
 										surfaceNodes.add(idSurface);
 									}
-								}
+								//}
 							}
 						}
 
@@ -470,7 +470,7 @@ public class TransducerSurfToDeep
 			}
 			catch (Exception e)
 			{
-				System.err.println("Failed to parse line + i");
+				System.err.println("Failed to parse line" + i);
 				throw e;
 			}
 		}
@@ -595,7 +595,7 @@ public class TransducerSurfToDeep
 		}
 
 		if (matchingIds.size() != inSurfaceTestTreebank.size())
-			throw new Exception("Number of test SSynt structures doesn't match number of predicted DSynts");
+			throw new Exception("Number of test SSynt (" + inSurfaceTestTreebank.size() + ") structures doesn't match number of predicted DSynts (" + matchingIds.size() + ")");
 
 		//Now, I have all the ids that exist in the list of hashmaps (one hashmap for each sentence)
 		partialOutputReader = new BufferedReader(new StringReader(inPartialOutput));
@@ -1046,7 +1046,7 @@ public class TransducerSurfToDeep
 		return 0;
 	}
 
-	private static String postProcessingTest(String inSurfaceInput, String inDeepOutput) throws IOException
+	private static String postProcessingTest(String inSurfaceInput, String inDeepOutput, String lang) throws IOException
 	{
 		ArrayList<CoNLLHash> deepOutput = CoNLLTreeConstructor.loadTreebank(inDeepOutput);
 		ArrayList<CoNLLHash> surfaceInput = CoNLLTreeConstructor.loadTreebank(inSurfaceInput);
@@ -1082,54 +1082,97 @@ public class TransducerSurfToDeep
 				String ssyntdeprel = surfaceSentence.getDeprel(id0);
 
 				line = putLemmaInForm(line, surfaceSentence.getLemma(id0));
-				if (ssyntdeprel.equals("analyt_fut"))
-				{
-					line = addFeats(line, "tense=FUT");
-				}
-				if (ssyntdeprel.equals("analyt_pass"))
-				{
-					line = addFeats(line, "voice=PASS");
-				}
-				if (ssyntdeprel.equals("analyt_perf"))
-				{
-					line = addFeats(line, "tense=PAST");
-				}
-				if (ssyntdeprel.equals("analyt_progr"))
-				{
-					line = addFeats(line, "tem_constituency=PROGR");
-				}
-				if (ssyntdeprel.equals("analyt_refl_pass"))
-				{
-					line = addFeats(line, "voice=PASS");
-				}
-				if (ssyntdeprel.equals("analyt_refl_lex"))
-				{
-					line = addReflexiveSe(line);
-				}
-
-				String child = detChild(surfaceSentence, id0);
-				if (child != null)
-				{
-					if (child.contains("un"))
+				
+				if(lang.equals("ES")){
+					if (ssyntdeprel.equals("analyt_fut"))
 					{
-						line = addFeats(line, "definiteness=INDEF");
+						line = addFeats(line, "tense=FUT");
 					}
-					else
+					if (ssyntdeprel.equals("analyt_pass"))
 					{
-						line = addFeats(line, "definiteness=DEF");
+						line = addFeats(line, "voice=PASS");
 					}
-				}
-
-				if (line.contains("VV") && line.contains("number") && line.contains("person"))
-				{
-					//it is a verb, let's check whether there are zero subjects.
-					isZero = areZeroSubjects(surfaceSentence, id0);
-					if (isZero)
+					if (ssyntdeprel.equals("analyt_perf"))
 					{
-						String pers = CoNLLHash.getSubFeat(feats, "person");
-						String numb = CoNLLHash.getSubFeat(feats, "number");
-						String newSubject = "pers" + pers + "_" + "num" + numb + "\t" + "pers" + pers + "_" + "num" + numb + "\t" + "_" + "\t" + "NN" + "\t" + "NN" + "\t" + "dpos=N|" + "id0=" + id0 + "_prosubj|" + "number_coref=" + numb + "|spos_coref=noun" + "\t" + "_" + "\t" + tokenCounter + "\t" + "_" + "\t" + "I\tI\t_\t_";
-						zeroSubjects.add(newSubject);
+						line = addFeats(line, "tense=PAST");
+					}
+					if (ssyntdeprel.equals("analyt_progr"))
+					{
+						line = addFeats(line, "tem_constituency=PROGR");
+					}
+					if (ssyntdeprel.equals("analyt_refl_pass"))
+					{
+						line = addFeats(line, "voice=PASS");
+					}
+					if (ssyntdeprel.equals("analyt_refl_lex"))
+					{
+						line = addReflexiveSe(line);
+					}
+	
+					String child = detChild(surfaceSentence, id0);
+					if (child != null)
+					{
+						if (child.contains("un"))
+						{
+							line = addFeats(line, "definiteness=INDEF");
+						}
+						else
+						{
+							line = addFeats(line, "definiteness=DEF");
+						}
+					}
+
+					if ((line.contains("VV") || line.contains("VB")) && line.contains("number") && line.contains("person"))
+					{
+						//it is a verb, let's check whether there are zero subjects.
+						isZero = areZeroSubjects(surfaceSentence, id0);
+						if (isZero)
+						{
+							String pers = CoNLLHash.getSubFeat(feats, "person");
+							String numb = CoNLLHash.getSubFeat(feats, "number");
+							String newSubject = "pers" + pers + "_" + "num" + numb + "\t" + "pers" + pers + "_" + "num" + numb + "\t" + "_" + "\t" + "NN" + "\t" + "NN" + "\t" + "dpos=N|" + "id0=" + id0 + "_prosubj|" + "number_coref=" + numb + "|spos_coref=noun" + "\t" + "_" + "\t" + tokenCounter + "\t" + "_" + "\t" + "I\tI\t_\t_";
+							zeroSubjects.add(newSubject);
+						}
+					}
+				}else if(lang.equals("PL")){
+					if ((line.contains("\tfin\t") || line.contains("\tbedzie\t") || line.contains("\tpraet\t")) && line.contains("number") && line.contains("person") && line.contains("gender"))
+					{
+						//it is a verb, let's check whether there are zero subjects.
+						isZero = areZeroSubjects(surfaceSentence, id0);
+						if (isZero)
+						{
+							String pers = CoNLLHash.getSubFeat(feats, "person");
+							switch(pers){
+								case "pri":
+									pers = "1";
+									break;
+								case "sec":
+									pers = "2";
+									break;
+								case "ter":
+									pers = "3";
+									break;
+							}
+							String numb = CoNLLHash.getSubFeat(feats, "number");
+							numb = numb.toUpperCase();
+							
+							String gend = CoNLLHash.getSubFeat(feats, "gender");
+							switch(gend){
+							case "m1":
+							case "m2":
+							case "m3":
+								gend = "MASC";
+								break;
+							case "f":
+								gend = "FEM";
+								break;
+							case "n":
+								gend = "0";
+								break;
+						}
+							String newSubject =  pers + "_" + numb + "_" + gend + "\t" + pers + "_" + numb + "_" + gend + "\t" + "_" + "\t" + "NN" + "\t" + "NN" + "\t" + "dpos=N|" + "id0=" + id0 + "_prosubj|" + "number_coref=" + numb + "|spos_coref=noun" + "\t" + "_" + "\t" + tokenCounter + "\t" + "_" + "\t" + "I\tI\t_\t_";
+							zeroSubjects.add(newSubject);
+						}
 					}
 				}
 				output += line + "\n";
@@ -1319,31 +1362,40 @@ public class TransducerSurfToDeep
 				.desc("resources folder containing model files")
 				.longOpt("resources")
 				.build();
+		Option lOpt = Option.builder("l").argName("language")
+				.hasArg(true)
+				.required(true)
+				.desc("language")
+				.longOpt("language")
+				.build();
 		Options options = new Options();
 		options.addOption(ssOpt);
 		options.addOption(dsOpt);
 		options.addOption(tOpt);
 		options.addOption(rOpt);
+		options.addOption(lOpt);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
 		Path resources = Paths.get(line.getOptionValue("r"));
 
-		if (line.getOptions().length == 2 && line.hasOption("t"))
+		if (line.getOptions().length == 3 && line.hasOption("t"))
 		{
+			//test
 			TransducerSurfToDeep testTransducer = getTestTransducer(resources);
 
 			Path testPath = Paths.get(line.getOptionValue("t"));
 			boolean postProcess = true; // for Spanish only?
-			String finalOutput = testTransducer.test(testPath, postProcess);
+			String finalOutput = testTransducer.test(testPath, postProcess, line.getOptionValue("l").toUpperCase());
 
 			Path outFilename = Paths.get("predicted_" + testPath.getFileName());
 			Path outFile = testPath.getParent().resolve(outFilename);
 			System.out.println("Writting output to " + outFile);
 			Files.write(outFile, finalOutput.getBytes());
 		}
-		else if (line.getOptions().length == 3 && line.hasOption("s") && line.hasOption("d"))
+		else if (line.getOptions().length == 4 && line.hasOption("s") && line.hasOption("d"))
 		{
+			//train
 			Path surfPath = Paths.get(line.getOptionValue("s"));
 			Path deepPath = Paths.get(line.getOptionValue("d"));
 			TransducerSurfToDeep trainTransducer = getTrainTransducer();

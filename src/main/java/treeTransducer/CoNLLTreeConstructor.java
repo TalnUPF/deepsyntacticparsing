@@ -37,7 +37,7 @@ public class CoNLLTreeConstructor
 		String l = inReader.readLine();
 		while (l != null)
 		{
-			if (l.isEmpty())
+			if (l.trim().isEmpty())
 			{
 				if (!hash.isEmpty())
 					list.add(hash); // add it even if it's empty (some dsynts may consist of no tokens)

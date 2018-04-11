@@ -51,7 +51,7 @@ public class EvaluationTest {
     private void addDeepEvaluation(String goldPathStr, String intrinsicEvalResultsPathStr, String candidateStringFormat, String newResultsPathStr) throws Exception {
         // For each predicted surface conll file looks for the deep conll file
         // (using the team name), conducts deep evaluation and adds the deep
-        // metrics to the surface metrics, writtig them to a new file 
+        // metrics to the surface metrics, writtig them to a new json file 
         // parsingEval_results_with_extrinsic.json
 
         Path goldPath = Paths.get(goldPathStr);

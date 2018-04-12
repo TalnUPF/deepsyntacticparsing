@@ -142,7 +142,7 @@ public class EvaluationTest {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
         String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/parsingEval_results.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_new_metrics_with_extrinsic.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_with_extrinsic.json";
         addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
@@ -151,7 +151,7 @@ public class EvaluationTest {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
         String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/parsingEval_results_new_metrics.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_new_metrics_with_manual_gold_with_extrinsic.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_with_manual_gold_with_extrinsic.json";
         addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
     

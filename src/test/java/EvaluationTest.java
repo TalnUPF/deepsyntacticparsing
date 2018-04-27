@@ -51,18 +51,17 @@ public class EvaluationTest {
 //        assertEquals(0.0, distance, 0.0);
     }
 
-    private void addDeepEvaluation(String goldPathStr, String intrinsicEvalResultsPathStr, String candidateStringFormat, String newResultsPathStr) throws Exception {
+    private void addDeepEvaluation(String goldPathStr, String surfaceEvalResultsPathStr, String candidateStringFormat, String newResultsPath) throws Exception {
         // For each predicted surface conll file looks for the deep conll file
         // (using the team name), conducts deep evaluation and adds the deep
-        // metrics to the surface metrics, writtig them to a new json file 
-        // parsingEval_results_with_extrinsic.json
+        // metrics to the surface metrics
 
         Path goldPath = Paths.get(goldPathStr);
 
         String id0Str = "id1="; 
         
         JSONParser jsonParser = new JSONParser();
-        Object obj = jsonParser.parse(new FileReader(intrinsicEvalResultsPathStr));
+        Object obj = jsonParser.parse(new FileReader(surfaceEvalResultsPathStr));
         JSONObject jsonObject = (JSONObject) obj;
         JSONArray predictions = (JSONArray) jsonObject.get("predictions");
         Iterator<JSONObject> iterator = predictions.iterator();
@@ -141,89 +140,42 @@ public class EvaluationTest {
             
         }
         
-        FileWriter file = new FileWriter(newResultsPathStr);
+        FileWriter file = new FileWriter(newResultsPath);
         file.write(jsonObject.toJSONString());
         file.flush();
     }
     
     @Test
-    public void add_deep_metrics_to_tedeval_eval_en() throws Exception {
+    public void add_deep_metrics_en() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResults.json";
+        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
     }
 
     @Test
-    public void add_deep_metrics_to_tedeval_eval_en_manual_gold() throws Exception {
+    public void add_deep_metrics_en_manual_gold() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResults.json";
+        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en_manual_gold.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsicManualGold.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
     
     @Test
-    public void add_deep_metrics_to_tedeval_eval_fr() throws Exception {
+    public void add_deep_metrics_fr() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_French_fr-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/ParsingEvalTestResults.json";
+        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/metrics/metrics_fr.json";
         String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
     }
 
     @Test
-    public void add_deep_metrics_to_tedeval_eval_es() throws Exception {
+    public void add_deep_metrics_es() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_Spanish-AnCora_es_ancora-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/ParsingEvalTestResults.json";
+        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/metrics/metrics_es.json";
         String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
-    }
-
-
-
-
-
-
-
-
-    
-    @Test
-    public void add_deep_metrics_to_las_weighted_eval_en() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_evaluation.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
-    }
-
-    @Test
-    public void add_deep_metrics_to_las_weighted_en_manual_gold() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_evaluation.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_and_extrinsic_evaluation_manual_gold.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
-    }
-    
-    @Test
-    public void add_deep_metrics_to_las_weighted_eval_fr() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_French_fr-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/intrinsic_evaluation.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
-    }
-
-    @Test
-    public void add_deep_metrics_to_las_weighted_eval_es() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_Spanish-AnCora_es_ancora-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/intrinsic_evaluation.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
-        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
     }
     
 }

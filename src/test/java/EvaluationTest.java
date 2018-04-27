@@ -24,8 +24,11 @@ import org.junit.Test;
  */
 public class EvaluationTest {
 
-    String deepDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
-    String surfaceDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
+//    String deepDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
+//    String surfaceDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
+    
+    String deepDatasetsPath = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_deep";
+    String surfaceDatasetsPath = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_surface";
     
     public EvaluationTest() {
         
@@ -66,69 +69,75 @@ public class EvaluationTest {
         while (iterator.hasNext()) {
             JSONObject jsonPrediction = iterator.next();
             String parserName = (String) jsonPrediction.get("parser");  // i.e. "C2L2_2017-05-13-07-09-39";
-            Path candidatePath = Paths.get(String.format(candidateStringFormat, parserName));
+            String parserPath = String.format(candidateStringFormat, parserName);
+            Path candidatePath = Paths.get(parserPath);
             
-            Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
-            Map<String, Double> results1 = e.HyperNodeAccuracy();
-            Map<String, Double> results2 = e.nodeLabelAndAttachment();
+            try {
+                Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
+                Map<String, Double> results1 = e.HyperNodeAccuracy();
+                Map<String, Double> results2 = e.nodeLabelAndAttachment();
 
-            JSONObject jsonMetrics = (JSONObject) jsonPrediction.get("metrics");
-            
-            Map<String, Double> precision = new HashMap<>();
-            precision.put("average", results1.get("precision"));
-            jsonMetrics.put("deep_precision", precision);
-            
-            Map<String, Double> recall = new HashMap<>();
-            recall.put("average", results1.get("recall"));
-            jsonMetrics.put("deep_recall", recall);
-            
-            Map<String, Double> f1 = new HashMap<>();
-            f1.put("average", results1.get("f1"));
-            jsonMetrics.put("deep_f1", f1);
+                JSONObject jsonMetrics = (JSONObject) jsonPrediction.get("metrics");
 
-            Map<String, Double> nodesDetected = new HashMap<>();
-            nodesDetected.put("average", results1.get("nodes_detected_by_system"));
-            jsonMetrics.put("deep_nodes_detected_by_system", nodesDetected);
+                Map<String, Double> precision = new HashMap<>();
+                precision.put("average", results1.get("precision"));
+                jsonMetrics.put("deep_precision", precision);
 
-            Map<String, Double> nodesGs = new HashMap<>();
-            nodesGs.put("average", results1.get("nodes_in_gold_standard"));
-            jsonMetrics.put("deep_nodes_in_gold_standard", nodesGs);
+                Map<String, Double> recall = new HashMap<>();
+                recall.put("average", results1.get("recall"));
+                jsonMetrics.put("deep_recall", recall);
 
-            Map<String, Double> nodesCorrectlyDetected = new HashMap<>();
-            nodesCorrectlyDetected.put("average", results1.get("nodes_correctly_detected"));
-            jsonMetrics.put("deep_nodes_correctly_detected", nodesCorrectlyDetected);            
+                Map<String, Double> f1 = new HashMap<>();
+                f1.put("average", results1.get("f1"));
+                jsonMetrics.put("deep_f1", f1);
 
-            Map<String, Double> preLas = new HashMap<>();
-            preLas.put("average", results2.get("precision_las"));
-            jsonMetrics.put("deep_precision_las", preLas); 
+                Map<String, Double> nodesDetected = new HashMap<>();
+                nodesDetected.put("average", results1.get("nodes_detected_by_system"));
+                jsonMetrics.put("deep_nodes_detected_by_system", nodesDetected);
 
-            Map<String, Double> preUas = new HashMap<>();
-            preUas.put("average", results2.get("precision_uas"));
-            jsonMetrics.put("deep_precision_uas", preUas); 
+                Map<String, Double> nodesGs = new HashMap<>();
+                nodesGs.put("average", results1.get("nodes_in_gold_standard"));
+                jsonMetrics.put("deep_nodes_in_gold_standard", nodesGs);
+
+                Map<String, Double> nodesCorrectlyDetected = new HashMap<>();
+                nodesCorrectlyDetected.put("average", results1.get("nodes_correctly_detected"));
+                jsonMetrics.put("deep_nodes_correctly_detected", nodesCorrectlyDetected);            
+
+                Map<String, Double> preLas = new HashMap<>();
+                preLas.put("average", results2.get("precision_las"));
+                jsonMetrics.put("deep_precision_las", preLas); 
+
+                Map<String, Double> preUas = new HashMap<>();
+                preUas.put("average", results2.get("precision_uas"));
+                jsonMetrics.put("deep_precision_uas", preUas); 
+
+                Map<String, Double> preLA = new HashMap<>();
+                preLA.put("average", results2.get("precision_la"));
+                jsonMetrics.put("deep_precision_la", preLA); 
+
+                Map<String, Double> recLas = new HashMap<>();
+                recLas.put("average", results2.get("recall_las"));
+                jsonMetrics.put("deep_recall_las", recLas); 
+
+                Map<String, Double> recUas = new HashMap<>();
+                recUas.put("average", results2.get("recall_uas"));
+                jsonMetrics.put("deep_recall_uas", recUas); 
+
+                Map<String, Double> recLA = new HashMap<>();
+                recLA.put("average", results2.get("recall_la"));
+                jsonMetrics.put("deep_recall_la", recLA); 
+
+                Map<String, Double> ucm = new HashMap<>();
+                ucm.put("average", results2.get("ucm"));
+                jsonMetrics.put("deep_ucm", ucm); 
+
+                Map<String, Double> lcm = new HashMap<>();
+                lcm.put("average", results2.get("lcm"));
+                jsonMetrics.put("deep_lcm", lcm); 
+            } catch (Exception ex) {
+                System.out.println("[WARNING] Parser in " + parserPath + " could not be evaluated.");
+            }
             
-            Map<String, Double> preLA = new HashMap<>();
-            preLA.put("average", results2.get("precision_la"));
-            jsonMetrics.put("deep_precision_la", preLA); 
-            
-            Map<String, Double> recLas = new HashMap<>();
-            recLas.put("average", results2.get("recall_las"));
-            jsonMetrics.put("deep_recall_las", recLas); 
-            
-            Map<String, Double> recUas = new HashMap<>();
-            recUas.put("average", results2.get("recall_uas"));
-            jsonMetrics.put("deep_recall_uas", recUas); 
-            
-            Map<String, Double> recLA = new HashMap<>();
-            recLA.put("average", results2.get("recall_la"));
-            jsonMetrics.put("deep_recall_la", recLA); 
-            
-            Map<String, Double> ucm = new HashMap<>();
-            ucm.put("average", results2.get("ucm"));
-            jsonMetrics.put("deep_ucm", ucm); 
-            
-            Map<String, Double> lcm = new HashMap<>();
-            lcm.put("average", results2.get("lcm"));
-            jsonMetrics.put("deep_lcm", lcm); 
             
         }
         
@@ -138,29 +147,82 @@ public class EvaluationTest {
     }
     
     @Test
-    public void completeTestEN() throws Exception {
+    public void add_deep_metrics_to_tedeval_eval_en() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/parsingEval_results.json";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResults.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_with_extrinsic.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
         addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
     @Test
-    public void completeTestENManualGold() throws Exception {
+    public void add_deep_metrics_to_tedeval_eval_en_manual_gold() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/parsingEval_results_new_metrics.json";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResults.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "en_well_splitted_dataset/parsingEval_results_with_manual_gold_with_extrinsic.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsicManualGold.json";
         addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
     
     @Test
-    public void completeTestFR() throws Exception {
+    public void add_deep_metrics_to_tedeval_eval_fr() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_French_fr-ud-test.conll_out.conll";
-        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/parsingEval_results.json";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/ParsingEvalTestResults.json";
         String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/parsingEval_results_with_extrinsic.json";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
+        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
+    @Test
+    public void add_deep_metrics_to_tedeval_eval_es() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_Spanish-AnCora_es_ancora-ud-test.conll_out.conll";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/ParsingEvalTestResults.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/ParsingEvalTestResultsWithExtrinsic.json";
+        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
+
+
+
+
+
+
+
+    
+    @Test
+    public void add_deep_metrics_to_las_weighted_eval_en() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_evaluation.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
+        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
+    @Test
+    public void add_deep_metrics_to_las_weighted_en_manual_gold() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_evaluation.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/intrinsic_and_extrinsic_evaluation_manual_gold.json";
+        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+    
+    @Test
+    public void add_deep_metrics_to_las_weighted_eval_fr() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_French_fr-ud-test.conll_out.conll";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/intrinsic_evaluation.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
+        addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
+    @Test
+    public void add_deep_metrics_to_las_weighted_eval_es() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_Spanish-AnCora_es_ancora-ud-test.conll_out.conll";
+        String intrinsicEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/intrinsic_evaluation.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
+        String newResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/intrinsic_and_extrinsic_evaluation.json";
         addDeepEvaluation(goldPathStr, intrinsicEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
     

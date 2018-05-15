@@ -148,43 +148,28 @@ public class Evaluation {
         for (int i = 0; i < outputHash.size(); i++) {
 
             CoNLLHash outputSentence = outputHash.get(i);
-            CoNLLHash goldSentence = goldStandardHash.get(i);
-
             ArrayList<String> outputIds = outputSentence.getIds();
-            //nodesDetected+=outputIds.size();
-            nodesDetected += countNodes(outputIds, outputSentence);
+            nodesDetected += countNodes(outputIds, outputSentence);  // this method counts the nodes removing the correferences.
 
+            CoNLLHash goldSentence = goldStandardHash.get(i);
             ArrayList<String> goldIds = goldSentence.getIds();
-            nodesGs += countNodes(goldIds, goldSentence); //this method counts the nodes removing the correferences.
-            //nodesGs+=goldIds.size();
+            nodesGs += countNodes(goldIds, goldSentence);  // this method counts the nodes removing the correferences.
 
             for (int i_id = 0; i_id < outputIds.size(); i_id++) {
 
                 String id = outputIds.get(i_id);
 
-                //System.out.println("Node: "+form);
                 String feats = outputSentence.getFEAT(id);
                 String id0 = this.getId0(feats);
-                /*System.out.println("");
-				System.out.println(form);
-				System.out.println(id0);*/
                 String goldNode = this.returnNode(id0, goldSentence);
 
                 if (!id0.contains("_")) {
 
                     if (goldNode != null && !goldNode.isEmpty()) {
 
-                        //System.out.println("GoldNode: "+goldNode);
-                        //
-                        String formG = goldSentence.getForm(goldNode);
-                        //System.out.println(goldNode+" "+formG);
-                        //
-
                         String label = outputSentence.getDeprel(id);
 
-                        //System.out.println("Label:"+label);
                         String labelGold = goldSentence.getDeprel(goldNode);
-                        //System.out.println("LabelGold:"+labelGold);
 
                         boolean labelOk = false;
                         if (labelGold.equals(label)) {
@@ -195,10 +180,8 @@ public class Evaluation {
                         }
 
                         String head = outputSentence.getHead(id);
-                        //System.out.println("Head:"+head);
 
                         String headGold = goldSentence.getHead(goldNode);
-                        //System.out.println("HeadGold:"+headGold);
 
                         if (head.equals("0") || (headGold.equals("0"))) {
                             if (head.equals(headGold)) {
@@ -222,7 +205,6 @@ public class Evaluation {
                                         nodesCorrectlyAttachedAndLabelled++;
                                     }
                                 } else {
-                                    //System.out.println(id+"\t"+form+"\tHead:"+head +"(surf:"+id0Head+")\tHeadGold:"+headGold+"(surf:"+id0HeadGold+") (sentenceCounter:"+i+")");
                                     errorAttach = true;
                                 }
                             }
@@ -230,11 +212,6 @@ public class Evaluation {
                     }
 
                 }
-            }
-
-            if (errorAttach) {
-                //System.out.println("Sentence counter: "+i);
-                //System.out.println("-----------------------");
             }
 
             if (!errorAttach) {
@@ -247,19 +224,8 @@ public class Evaluation {
 
             errorAttach = false;
             errorLabel = false;
-
-            /*
-			 * numberErrorsSentenceAttachment=new HashMap<Integer,Integer>();
-		HashMap<Integer, Integer> numberErrorsSentenceLabelling=new HashMap<Integer,Integer>();
-		HashMap<Integer, Integer> numberErrorsSentenceLabellingAttachment=new HashMap<Integer,Integer>();
-             */
         }
 
-        /*
-		 * precision=(double)nodesCorrectlyDetected/(double)nodesDetected;
-		recall=(double)nodesCorrectlyDetected/(double)nodesGs;
-		f=(2*precision*recall)/(precision+recall);
-         */
         System.out.println("----Labelling and Attachment:----");
         double preLas = (double) nodesCorrectlyAttachedAndLabelled / (double) nodesDetected * 100;
         double preUas = (double) nodesCorrectlyAttached / (double) nodesDetected * 100;
@@ -295,7 +261,6 @@ public class Evaluation {
         results.put("ucm", ucm);
         results.put("lcm", lcm);
         return results;
-
     }
 
     /**

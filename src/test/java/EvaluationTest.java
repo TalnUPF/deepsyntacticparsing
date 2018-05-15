@@ -78,6 +78,10 @@ public class EvaluationTest {
 
                 JSONObject jsonMetrics = (JSONObject) jsonPrediction.get("metrics");
 
+                Map<String, Double> recLas = new HashMap<>();
+                recLas.put("average", results2.get("recall_las"));
+                jsonMetrics.put("deep_recall_las", recLas); 
+                
 //                Map<String, Double> precision = new HashMap<>();
 //                precision.put("average", results1.get("precision"));
 //                jsonMetrics.put("deep_precision", precision);
@@ -114,10 +118,6 @@ public class EvaluationTest {
 //                preLA.put("average", results2.get("precision_la"));
 //                jsonMetrics.put("deep_precision_la", preLA); 
 
-                Map<String, Double> recLas = new HashMap<>();
-                recLas.put("average", results2.get("recall_las"));
-                jsonMetrics.put("deep_recall_las", recLas); 
-
 //                Map<String, Double> recUas = new HashMap<>();
 //                recUas.put("average", results2.get("recall_uas"));
 //                jsonMetrics.put("deep_recall_uas", recUas); 
@@ -136,8 +136,6 @@ public class EvaluationTest {
             } catch (Exception ex) {
                 System.out.println("[WARNING] Parser in " + parserPath + " could not be evaluated.");
             }
-            
-            
         }
         
         FileWriter file = new FileWriter(newResultsPath);

@@ -27,8 +27,8 @@ public class EvaluationTest {
 //    String deepDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
 //    String surfaceDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
     
-    String deepDatasetsPath = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_deep";
-    String surfaceDatasetsPath = "/home/lpmayos/NetBeansProjects/parsingEval/src/main/resources/datasets_surface";
+    String deepDatasetsPath = "/home/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
+    String surfaceDatasetsPath = "/home/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
     
     public EvaluationTest() {
         

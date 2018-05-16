@@ -30,9 +30,6 @@ import treeTransducer.CoNLLTreeConstructor;
  */
 public class Evaluation {
 
-    /*private String goldStandard;
-	private String inputSurfaceTreebank;
-	private String output;*/
     private double precision;
     private double recall;
     private double f;
@@ -43,14 +40,11 @@ public class Evaluation {
 
     private String id0Str;
 
-    private ArrayList<CoNLLHash> surfaceHash;
     private ArrayList<CoNLLHash> goldStandardHash;
     private ArrayList<CoNLLHash> outputHash;
 
     public Evaluation(Path goldStandard, Path output, String id0Str) throws IOException {
         this.id0Str = id0Str;
-
-        //surfaceHash= CoNLLTreeConstructor.loadTreebank(inputSurface);
         String gold = new String(Files.readAllBytes(goldStandard));
         String system = new String(Files.readAllBytes(output));
         goldStandardHash = CoNLLTreeConstructor.loadTreebank(gold);
@@ -81,30 +75,21 @@ public class Evaluation {
             CoNLLHash goldSentence = goldStandardHash.get(i);
 
             ArrayList<String> outputIds = outputSentence.getIds();
-            //nodesDetected+=outputIds.size();
             nodesDetected += countNodes(outputIds, outputSentence);
 
             ArrayList<String> goldIds = goldSentence.getIds();
             nodesGs += countNodes(goldIds, goldSentence); //this method counts the nodes removing the correferences.
-            //nodesGs+=goldIds.size();
 
             for (int i_id = 0; i_id < outputIds.size(); i_id++) {
                 String id = outputIds.get(i_id);
-                //String form=outputSentence.getForm(id);
                 String feats = outputSentence.getFEAT(id);
                 String id0 = this.getId0(feats);
-                //System.out.println(id0);
                 if (!id0.contains("_")) {
                     if (findNode(id0, goldSentence)) {
                         nodesCorrectlyDetected++;
                     }
                 }
-                /*else {
-					System.out.println(id+"\t"+form);
-				}*/
-
             }
-
         }
 
         System.out.println("----HyperNode Detection:----");
@@ -145,7 +130,7 @@ public class Evaluation {
 
         boolean errorLabel = false;
         boolean errorAttach = false;
-        for (int i = 0; i < outputHash.size(); i++) {
+        for (int i = 0; i < outputHash.size(); i++) {  // for each sentence
 
             CoNLLHash outputSentence = outputHash.get(i);
             ArrayList<String> outputIds = outputSentence.getIds();
@@ -155,7 +140,7 @@ public class Evaluation {
             ArrayList<String> goldIds = goldSentence.getIds();
             nodesGs += countNodes(goldIds, goldSentence);  // this method counts the nodes removing the correferences.
 
-            for (int i_id = 0; i_id < outputIds.size(); i_id++) {
+            for (int i_id = 0; i_id < outputIds.size(); i_id++) {  // for each node inside a sentence
 
                 String id = outputIds.get(i_id);
 
@@ -210,7 +195,6 @@ public class Evaluation {
                             }
                         }
                     }
-
                 }
             }
 
@@ -263,16 +247,8 @@ public class Evaluation {
         return results;
     }
 
-    /**
-     *
-     * SO FAR, IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!)
-     *
-     * @param ids
-     * @param goldSentence
-     * @return
-     */
+    /* SO FAR, IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!) */
     private int countNodes(ArrayList<String> ids, CoNLLHash goldSentence) {
-        // TODO Auto-generated method stub
         int cont = 0;
 
         for (int i_id = 0; i_id < ids.size(); i_id++) {
@@ -280,29 +256,22 @@ public class Evaluation {
             String form = goldSentence.getForm(id);
             String feats = goldSentence.getFEAT(id);
             String id0 = this.getId0(feats);
-            /*System.out.println("");
-			System.out.println(form);
-			System.out.println(id0);*/
-            //if ((!id0.contains("_"))&&(!feats.contains("coref"))) {  //IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!)
-            if (!(id0.contains("_"))) {  //IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!)
+            if (!(id0.contains("_"))) {  // IT DOES NOT COUNT NODES THAT ARE COREF NODES (FIRST VERSION!)
                 cont++;
             }
-
         }
+
         return cont;
     }
 
     private boolean findNode(String id0, CoNLLHash goldSentence) {
-        // TODO Auto-generated method stub
         ArrayList<String> goldIds = goldSentence.getIds();
 
         for (int i_id = 0; i_id < goldIds.size(); i_id++) {
             String id = goldIds.get(i_id);
             String feats = goldSentence.getFEAT(id);
             String id0Gold = this.getId0(feats);
-            //System.out.print(id0Gold+ " ");
             if (id0Gold.equals(id0)) {
-                //System.out.println("Found");
                 return true;
             }
         }
@@ -311,7 +280,6 @@ public class Evaluation {
     }
 
     private String returnNode(String id0, CoNLLHash goldSentence) {
-        // TODO Auto-generated method stub
         ArrayList<String> goldIds = goldSentence.getIds();
         String node = "";
 
@@ -319,9 +287,7 @@ public class Evaluation {
             String id = goldIds.get(i_id);
             String feats = goldSentence.getFEAT(id);
             String id0Gold = this.getId0(feats);
-            //System.out.print(id0Gold+ " ");
             if (id0Gold.equals(id0)) {
-                //System.out.println("Found");
                 return id;
             }
         }
@@ -370,8 +336,6 @@ public class Evaluation {
                 .create("s");
 
         Options options = new Options();
-        //options.addOption(sentenceOpt);
-        //options.addOption(testingOpt);
         options.addOption(gsOpt);
         options.addOption(soOpt);
 
@@ -379,23 +343,11 @@ public class Evaluation {
         try {
             // parse the command line arguments
             CommandLine line = parser.parse(options, args);
-            //"dsynt_test.conll","dsynt_partial_output_3.conll"
             String id0Str = "id0=";
             Evaluation e = new Evaluation(Paths.get(line.getOptionValue("g")), Paths.get(line.getOptionValue("s")), id0Str);
             e.HyperNodeAccuracy();
             e.nodeLabelAndAttachment();
 
-            /*String sentenceFilePath = line.getOptionValue("s");
-	            String transitionsFilePath = line.getOptionValue("t");
-	            String outputFileName = line.getOptionValue("o");
-	            
-	            Integer sentenceChoice = 0;
-	            if (line.hasOption("c")) {
-	                sentenceChoice = Integer.parseInt(line.getOptionValue("c")) - 1;
-	            }
-	            boolean allowRoot = !line.hasOption("nar");
-	            boolean verbose = line.hasOption("v");*/
-            //run(sentenceFilePath, transitionsFilePath, outputFileName, allowRoot, sentenceChoice, verbose);
         } catch (ParseException exp) {
             // oops, something went wrong
             System.err.println(exp.getMessage());
@@ -404,6 +356,5 @@ public class Evaluation {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("Evaluation Tree Transducer", options, true);
         }
-
     }
 }

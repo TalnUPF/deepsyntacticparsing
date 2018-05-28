@@ -49,6 +49,11 @@ public class Evaluation {
         String system = new String(Files.readAllBytes(output));
         goldStandardHash = CoNLLTreeConstructor.loadTreebank(gold);
         outputHash = CoNLLTreeConstructor.loadTreebank(system);
+
+        // when evaluating with manual gold standard, we don't have as many sentences --> evaluate just the portion we have
+        if (goldStandardHash.size() != outputHash.size()) {
+            outputHash = new ArrayList<CoNLLHash>(outputHash.subList(0, goldStandardHash.size()));
+        }
         System.out.println("\n-----------Evaluation-------------\n");
     }
 
@@ -118,6 +123,10 @@ public class Evaluation {
     }
 
     public Map<String, Double> nodeLabelAndAttachment() {
+        return nodeLabelAndAttachment(true);
+    }
+    
+    public Map<String, Double> nodeLabelAndAttachment(Boolean printResults) {
         int nodesGs = 0;
         int nodesDetected = 0;
         int nodesCorrectlyAttached = 0;
@@ -210,7 +219,7 @@ public class Evaluation {
             errorLabel = false;
         }
 
-        System.out.println("----Labelling and Attachment:----");
+        
         double preLas = (double) nodesCorrectlyAttachedAndLabelled / (double) nodesDetected * 100;
         double preUas = (double) nodesCorrectlyAttached / (double) nodesDetected * 100;
         double preLA = (double) nodesCorrectlyLabelled / (double) nodesDetected * 100;
@@ -219,21 +228,10 @@ public class Evaluation {
         double recUas = (double) nodesCorrectlyAttached / (double) nodesGs * 100;
         double recLA = (double) nodesCorrectlyLabelled / (double) nodesGs * 100;
 
-        System.out.println("Precision LAS:" + preLas + " (" + nodesCorrectlyAttachedAndLabelled + "/" + nodesDetected + ")");
-        System.out.println("Precision UAS:" + preUas + " (" + nodesCorrectlyAttached + "/" + nodesDetected + ")");
-        System.out.println("Precision LA:" + preLA + " (" + nodesCorrectlyLabelled + "/" + nodesDetected + ")");
-        System.out.println("-------------------");
-        System.out.println("Recall LAS:" + recLas + " (" + nodesCorrectlyAttachedAndLabelled + "/" + nodesGs + ")");
-        System.out.println("Recall UAS:" + recUas + " (" + nodesCorrectlyAttached + "/" + nodesGs + ")");
-        System.out.println("Recall LA:" + recLA + " (" + nodesCorrectlyLabelled + "/" + nodesGs + ")");
-
         contSentences = outputHash.size();
 
         double ucm = (double) completeAttachment / (double) contSentences * 100;
         double lcm = (double) completeLabelAttachment / (double) contSentences * 100;
-        System.out.println("-------------------");
-        System.out.println("UCM:" + ucm + " (" + completeAttachment + "/" + contSentences + ")");
-        System.out.println("LCM:" + lcm + " (" + completeLabelAttachment + "/" + contSentences + ")");
 
         Map<String, Double> results = new HashMap<>();
         results.put("precision_las", preLas);
@@ -244,6 +242,21 @@ public class Evaluation {
         results.put("recall_la", recLA);
         results.put("ucm", ucm);
         results.put("lcm", lcm);
+
+        if (printResults) {
+            System.out.println("----Labelling and Attachment:----");
+            System.out.println("Precision LAS:" + preLas + " (" + nodesCorrectlyAttachedAndLabelled + "/" + nodesDetected + ")");
+            System.out.println("Precision UAS:" + preUas + " (" + nodesCorrectlyAttached + "/" + nodesDetected + ")");
+            System.out.println("Precision LA:" + preLA + " (" + nodesCorrectlyLabelled + "/" + nodesDetected + ")");
+            System.out.println("-------------------");
+            System.out.println("Recall LAS:" + recLas + " (" + nodesCorrectlyAttachedAndLabelled + "/" + nodesGs + ")");
+            System.out.println("Recall UAS:" + recUas + " (" + nodesCorrectlyAttached + "/" + nodesGs + ")");
+            System.out.println("Recall LA:" + recLA + " (" + nodesCorrectlyLabelled + "/" + nodesGs + ")");
+            System.out.println("-------------------");
+            System.out.println("UCM:" + ucm + " (" + completeAttachment + "/" + contSentences + ")");
+            System.out.println("LCM:" + lcm + " (" + completeLabelAttachment + "/" + contSentences + ")");
+        }
+
         return results;
     }
 

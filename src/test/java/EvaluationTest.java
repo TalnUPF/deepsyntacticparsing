@@ -12,11 +12,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Test;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
@@ -26,30 +21,13 @@ public class EvaluationTest {
 
 //    String deepDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
 //    String surfaceDatasetsPath = "/Users/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
-    
     String deepDatasetsPath = "/home/lpmayos/code/parsingEval/src/main/resources/datasets_deep";
     String surfaceDatasetsPath = "/home/lpmayos/code/parsingEval/src/main/resources/datasets_surface";
-    
-    public EvaluationTest() {
-        
-    }
+    String resultsPath = "/home/lpmayos/code/parsingEval/src/main/utils_taln/results";
 
-//    @Test
-//    public void equalFilesTest() throws Exception {
-//        // Test: predicted and gold are the same tree
-//
-//        Path goldPath = Paths.get(this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll");
-//        String parserName = "C2L2_2017-05-13-07-09-39";
-//        Path candidatePath = Paths.get(this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_C2L2_2017-05-13-07-09-39_output_en.conll_out.conll");
-//        
-//        String id0Str = "id1="; 
-//        
-//        Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
-//        Map<String, Double> results1 = e.HyperNodeAccuracy();
-//        Map<String, Double> results2 = e.nodeLabelAndAttachment();
-//        
-////        assertEquals(0.0, distance, 0.0);
-//    }
+    public EvaluationTest() {
+
+    }
 
     private void addDeepEvaluation(String goldPathStr, String surfaceEvalResultsPathStr, String candidateStringFormat, String newResultsPath) throws Exception {
         // For each predicted surface conll file looks for the deep conll file
@@ -58,8 +36,8 @@ public class EvaluationTest {
 
         Path goldPath = Paths.get(goldPathStr);
 
-        String id0Str = "id1="; 
-        
+        String id0Str = "id1=";
+
         JSONParser jsonParser = new JSONParser();
         Object obj = jsonParser.parse(new FileReader(surfaceEvalResultsPathStr));
         JSONObject jsonObject = (JSONObject) obj;
@@ -70,18 +48,17 @@ public class EvaluationTest {
             String parserName = (String) jsonPrediction.get("parser");  // i.e. "C2L2_2017-05-13-07-09-39";
             String parserPath = String.format(candidateStringFormat, parserName);
             Path candidatePath = Paths.get(parserPath);
-            
-            try {
-                Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
+
+            Evaluation e = new Evaluation(goldPath, candidatePath, id0Str);
 //                Map<String, Double> results1 = e.HyperNodeAccuracy();
-                Map<String, Double> results2 = e.nodeLabelAndAttachment();
+            Map<String, Double> results2 = e.nodeLabelAndAttachment();
 
-                JSONObject jsonMetrics = (JSONObject) jsonPrediction.get("metrics");
+            JSONObject jsonMetrics = (JSONObject) jsonPrediction.get("metrics");
 
-                Map<String, Double> recLas = new HashMap<>();
-                recLas.put("average", results2.get("recall_las"));
-                jsonMetrics.put("deep_recall_las", recLas); 
-                
+            Map<String, Double> recLas = new HashMap<>();
+            recLas.put("average", results2.get("recall_las"));
+            jsonMetrics.put("deep_recall_las", recLas);
+
 //                Map<String, Double> precision = new HashMap<>();
 //                precision.put("average", results1.get("precision"));
 //                jsonMetrics.put("deep_precision", precision);
@@ -117,7 +94,6 @@ public class EvaluationTest {
 //                Map<String, Double> preLA = new HashMap<>();
 //                preLA.put("average", results2.get("precision_la"));
 //                jsonMetrics.put("deep_precision_la", preLA); 
-
 //                Map<String, Double> recUas = new HashMap<>();
 //                recUas.put("average", results2.get("recall_uas"));
 //                jsonMetrics.put("deep_recall_uas", recUas); 
@@ -133,47 +109,65 @@ public class EvaluationTest {
 //                Map<String, Double> lcm = new HashMap<>();
 //                lcm.put("average", results2.get("lcm"));
 //                jsonMetrics.put("deep_lcm", lcm); 
-            } catch (Exception ex) {
-                System.out.println("[WARNING] Parser in " + parserPath + " could not be evaluated.");
-            }
         }
-        
+
         FileWriter file = new FileWriter(newResultsPath);
         file.write(jsonObject.toJSONString());
         file.flush();
     }
-    
+
     @Test
     public void add_deep_metrics_en() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
-        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en.json";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/metrics_en.json";
         String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
+        String newResultsPathStr = surfaceEvalResultsPathStr;
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
     @Test
     public void add_deep_metrics_en_manual_gold() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/EN_Deep_manual_gold/gold_EN_deep_SIMON.conll";
-        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en.json";
-        String newResultsPathStr = this.surfaceDatasetsPath + "/en_well_splitted_dataset/metrics/metrics_en_manual_gold.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep_manual_gold/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
+        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_EN_deep_SIMON.conll";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/metrics_en.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
+        String newResultsPathStr = this.resultsPath + "/en/metrics/metrics_en_manual_gold.json";
         addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
-    
+
     @Test
     public void add_deep_metrics_fr() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_French_fr-ud-test.conll_out.conll";
-        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/fr_well_splitted_dataset/metrics/metrics_fr.json";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/fr/metrics/metrics_fr.json";
         String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
-        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
+        String newResultsPathStr = surfaceEvalResultsPathStr;
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
+    @Test
+    public void add_deep_metrics_fr_manual_gold() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/FR_Deep/gold_FR_deep_SIMON.conll";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/fr/metrics/metrics_fr.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/FR_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_fr.conll_out.conll";
+        String newResultsPathStr = this.resultsPath + "/fr/metrics/metrics_fr_manual_gold.json";
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
     @Test
     public void add_deep_metrics_es() throws Exception {
         String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_Spanish-AnCora_es_ancora-ud-test.conll_out.conll";
-        String surfaceEvalResultsPathStr = this.surfaceDatasetsPath + "/es_ancora_well_splitted_dataset/metrics/metrics_es.json";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/es/metrics/metrics_es.json";
         String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
-        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, surfaceEvalResultsPathStr);
+        String newResultsPathStr = surfaceEvalResultsPathStr;
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
-    
+
+    @Test
+    public void add_deep_metrics_es_manual_gold() throws Exception {
+        String goldPathStr = this.deepDatasetsPath + "/ES_Deep/gold_ES_deep_SIMON.conll";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/es/metrics/metrics_es.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/ES_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_es_ancora.conll_out.conll";
+        String newResultsPathStr = this.resultsPath + "/es/metrics/metrics_es_manual_gold.json";
+        addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
+    }
+
 }

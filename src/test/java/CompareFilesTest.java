@@ -31,7 +31,7 @@ public class CompareFilesTest {
         candidates.add(Paths.get(goldsFolder + "UD-Deep_EN-A2.conll"));
         candidates.add(Paths.get(goldsFolder + "UD-Deep_EN-A2INV.conll"));
         candidates.add(Paths.get(goldsFolder + "UD-Deep_EN-AM.conll"));
-                
+        
         String id0Str = "id1="; 
 
         PrintWriter writer = new PrintWriter(goldsFolder + "results.txt", "UTF-8");
@@ -50,6 +50,19 @@ public class CompareFilesTest {
             writer.println(deep_recall_las.toString() + "\t\t" + name);
         }
 
+        writer.println("\nEnglish: deep_recall_uas of the diferent gold files compared with " + name);
+        writer.println("--------------------------------------------------------------------------------------------------------");
+
+        for (Path candidateGoldPath : candidates) {
+            Evaluation e = new Evaluation(manualGoldPath, candidateGoldPath, id0Str);
+            Boolean printResults = false;
+            Map<String, Double> results = e.nodeLabelAndAttachment(printResults);
+            Double deep_recall_uas = results.get("recall_uas");
+            
+            name = candidateGoldPath.toString().split(goldsFolder)[1];
+            writer.println(deep_recall_uas.toString() + "\t\t" + name);
+        }
+        
         writer.close();
     }
 
@@ -85,6 +98,19 @@ public class CompareFilesTest {
             writer.println(deep_recall_las.toString() + "\t\t" + name);
         }
 
+        writer.println("\nFrench: deep_recall_uas of the diferent gold files compared with " + name);
+        writer.println("--------------------------------------------------------------------------------------------------------");
+
+        for (Path candidateGoldPath : candidates) {
+            Evaluation e = new Evaluation(manualGoldPath, candidateGoldPath, id0Str);
+            Boolean printResults = false;
+            Map<String, Double> results = e.nodeLabelAndAttachment(printResults);
+            Double deep_recall_uas = results.get("recall_uas");
+            
+            name = candidateGoldPath.toString().split(goldsFolder)[1];
+            writer.println(deep_recall_uas.toString() + "\t\t" + name);
+        }
+        
         writer.close();
     }
 
@@ -120,6 +146,19 @@ public class CompareFilesTest {
             writer.println(deep_recall_las.toString() + "\t\t" + name);
         }
 
+        writer.println("\nSpanish: deep_recall_uas of the diferent gold files compared with " + name);
+        writer.println("--------------------------------------------------------------------------------------------------------");
+
+        for (Path candidateGoldPath : candidates) {
+            Evaluation e = new Evaluation(manualGoldPath, candidateGoldPath, id0Str);
+            Boolean printResults = false;
+            Map<String, Double> results = e.nodeLabelAndAttachment(printResults);
+            Double deep_recall_uas = results.get("recall_uas");
+            
+            name = candidateGoldPath.toString().split(goldsFolder)[1];
+            writer.println(deep_recall_uas.toString() + "\t\t" + name);
+        }
+        
         writer.close();
     }
     

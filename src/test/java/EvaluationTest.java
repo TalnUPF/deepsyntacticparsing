@@ -118,19 +118,19 @@ public class EvaluationTest {
 
     @Test
     public void add_deep_metrics_en() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_ud2.1_ud-treebanks-v2.1_UD_English_en-ud-test.conll_out.conll";
-        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/metrics_en.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = surfaceEvalResultsPathStr;
+        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold.conll";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/parsingEval.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/%s.conll";
+        String newResultsPathStr = this.resultsPath + "/en/metrics/parsingEval_automatic_deep.json";
         addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
     @Test
     public void add_deep_metrics_en_manual_gold() throws Exception {
-        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_EN_deep_SIMON.conll";
-        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/metrics_en.json";
-        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/candidate_conll2017-test-runs-v3_conll17-ud-test-2017-05-09_%s_output_en.conll_out.conll";
-        String newResultsPathStr = this.resultsPath + "/en/metrics/metrics_en_manual_gold.json";
+        String goldPathStr = this.deepDatasetsPath + "/EN_Deep/gold_manual.conll";
+        String surfaceEvalResultsPathStr = this.resultsPath + "/en/metrics/parsingEval.json";
+        String candidateStringFormat = this.deepDatasetsPath + "/EN_Deep/%s.conll";
+        String newResultsPathStr = this.resultsPath + "/en/metrics/parsingEval_manual_deep.json";
         addDeepEvaluation(goldPathStr, surfaceEvalResultsPathStr, candidateStringFormat, newResultsPathStr);
     }
 
